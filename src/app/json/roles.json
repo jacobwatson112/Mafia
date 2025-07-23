@@ -7,7 +7,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": true
+            "singleAction": true,
+            "card": {
+                "name": "♥A",
+                "char": "🂱",
+                "color": "red",
+              }
         },
         {
             "name": "Clairvoyant",
@@ -16,7 +21,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♦K",
+                "char": "🃎",
+                "color": "red",
+              }
         },
         {
             "name": "Cupid",
@@ -25,7 +35,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♥J",
+                "char": "🂻",
+                "color": "red",
+              }
         },
         {
             "name": "Detective",
@@ -34,7 +49,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♣K",
+                "char": "🃞",
+                "color": "black",
+              }
         },
         {
             "name": "Doctor",
@@ -43,7 +63,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♥Q",
+                "char": "🂽",
+                "color": "red",
+              }
         },
         {
             "name": "Doppelganger",
@@ -52,7 +77,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "Joker",
+                "char": "🂿",
+                "color": "purple",
+              }
         },
         {
             "name": "Gambler",
@@ -61,7 +91,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": true,
-            "singleAction": true
+            "singleAction": true,
+            "card": {
+                "name": "♥8",
+                "char": "🂸",
+                "color": "red",
+              }
         },
         {
             "name": "Guardian Angel",
@@ -70,7 +105,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": true,
-            "singleAction": true
+            "singleAction": true,
+            "card": {
+                "name": "♥11",
+                "char": "🃫",
+                "color": "red",
+              }
         },
         {
             "name": "Investigator",
@@ -79,7 +119,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": true
+            "singleAction": true,
+            "card": {
+                "name": "",
+                "char": "",
+                "color": "red",
+              }
         },
         {
             "name": "Mafia",
@@ -88,7 +133,12 @@
             "adminInfo": "Wake up the Mafia Boss too",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♠2",
+                "char": "🂢",
+                "color": "black",
+              }
         },
         {
             "name": "Mafia Boss",
@@ -97,7 +147,12 @@
             "adminInfo": "",
             "wakeUp": false,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♠A",
+                "char": "🂡",
+                "color": "black",
+              }
         },
         {
             "name": "Masons",
@@ -106,7 +161,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": true,
-            "singleAction": true
+            "singleAction": true,
+            "card": {
+                "name": "♥6 ♦6",
+                "char": "🂶🃆",
+                "color": "red",
+              }
         },
         {
             "name": "Mayor",
@@ -115,7 +175,12 @@
             "adminInfo": "",
             "wakeUp": false,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♦A",
+                "char": "🃁",
+                "color": "red",
+              }
         },
         {
             "name": "Sniper",
@@ -124,7 +189,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": true
+            "singleAction": true,
+            "card": {
+                "name": "♦9",
+                "char": "🃉",
+                "color": "red",
+              }
         },
         {
             "name": "Tanner",
@@ -133,7 +203,12 @@
             "adminInfo": "",
             "wakeUp": false,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                  "name": "♠12",
+                  "char": "🃬",
+                  "color": "black",
+                }
         },
         {
             "name": "Taxi Driver",
@@ -142,7 +217,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "♦13",
+                "char": "🃭",
+                "color": "red",
+              }
         },
         {
             "name": "Thing",
@@ -151,7 +231,12 @@
             "adminInfo": "",
             "wakeUp": true,
             "firstNightOnly": true,
-            "singleAction": true
+            "singleAction": true,
+            "card": {
+              "name": "",
+              "char": "",
+              "color": "red",
+            }
         },
         {
             "name": "Villager",
@@ -160,7 +245,12 @@
             "adminInfo": "",
             "wakeUp": false,
             "firstNightOnly": false,
-            "singleAction": false
+            "singleAction": false,
+            "card": {
+                "name": "",
+                "char": "",
+                "color": "red",
+              }
         }
     ]
 }
