@@ -1,6 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { BroadcastService } from '../../services/broadcast.service';
 import { BroadcastType } from '../../constants/broadcast.constants';
+import { RoleType } from '../../constants/role.constants';
+import { getRole } from '../../helper/roles.helper';
+import { Role } from '../../models/role.models';
 
 @Component({
   selector: 'app-display',
@@ -9,7 +12,9 @@ import { BroadcastType } from '../../constants/broadcast.constants';
   standalone: false,
 })
 export class DisplayPage implements OnInit {
-  currentPlayer = '';
+
+  messageType: BroadcastType
+  role?: Role
 
   constructor(
     private broadcastService: BroadcastService,
@@ -18,11 +23,27 @@ export class DisplayPage implements OnInit {
 
   ngOnInit() {
     this.broadcastService.message$.subscribe((msg) => {
-      if (msg.type === BroadcastType.Role) {
-        this.currentPlayer = msg.role;
+      this.messageType = msg.type
 
-        this.cdr.detectChanges();
+      switch (this.messageType) {
+        case BroadcastType.Role:
+          this.displayRole(msg.role)
+          break;
+        
+        case BroadcastType.Clear:
+          this.role = undefined
+          break;
+
+        case BroadcastType.Test:
+          //
+          break;
       }
+
+      this.cdr.detectChanges();
     });
+  }
+
+  displayRole(roleName: RoleType) {
+    this.role = getRole(roleName)
   }
 }

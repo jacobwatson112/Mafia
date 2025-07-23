@@ -5,5 +5,13 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-button (click)="sendTurn()">Send Turn</ion-button>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-button (click)="onSendTestClick()">Display Test</ion-button>
+        <ion-button (click)="onClearScreenClick()" color="danger">Clear Display</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-button (click)="sendTurn()">turn Test</ion-button>
 </ion-content>
