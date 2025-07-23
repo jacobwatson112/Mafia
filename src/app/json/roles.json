@@ -4,109 +4,163 @@
             "name": "Altruist",
             "description": "You may choose ONE person to bring back from the dead",
             "text": "You may only do this ONCE per game",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": true
         },
         {
             "name": "Clairvoyant",
             "description": "You may see the role of a dead player",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Cupid",
             "description": "Choose two players. If one dies, so will the other",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Detective",
             "description": "Choose another player, you will be able to see if they are part of the Mafia",
             "text": "Note: The Mafia Boss cannot be detected, while the Tanner will be a FALSE POSITIVE",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Doctor",
             "description": "Choose a player to save",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Doppelganger",
             "description": "Choose another player, you are now that role.",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Gambler",
             "description": "Choose a player you think will survive. You won't die until they do",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": true,
+            "singleAction": true
         },
         {
             "name": "Guardian Angel",
             "description": "Choose another player to give them an EXTRA LIFE",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": true,
+            "singleAction": true
         },
         {
             "name": "Investigator",
             "description": "You may see the role of ONE player (Living or Dead).",
             "text": "You may only do this ONCE per game",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": true
         },
         {
             "name": "Mafia",
             "description": "Kill everyone, don't get caught",
             "text": "Note: Chosen by majority vote",
-            "adminInfo": "Wake up the Mafia Boss too"
+            "adminInfo": "Wake up the Mafia Boss too",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Mafia Boss",
             "description": "A Mafia that cannot be detected",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": false,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Masons",
             "description": "Look at the other Masons",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": true,
+            "singleAction": true
         },
         {
             "name": "Mayor",
             "description": "Get TWO votes during the trial and the tie breaker",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": false,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Sniper",
             "description": "Kill ONE player at any point",
             "text": "Note: The doctor cannot save them",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": true
         },
         {
             "name": "Tanner",
             "description": "Win the game by getting voted as Mafia during the Trial",
             "text": "",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": false,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Taxi Driver",
             "description": "Cancel another players action",
             "text": "Note: If a Mafia is selected, they will have a chance to fail their action based on how many other Mafia are present <br> If the player could only do their action once per game they will be able to do it again on the next night.",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": false,
+            "singleAction": false
         },
         {
             "name": "Thing",
             "description": "Poke the player on your RIGHT or LEFT",
             "text": "You may only do this ONCE per game",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": true,
+            "firstNightOnly": true,
+            "singleAction": true
         },
         {
             "name": "Villager",
             "description": "Vote the Mafia out",
             "text": "Note: You literally don't do anything else",
-            "adminInfo": ""
+            "adminInfo": "",
+            "wakeUp": false,
+            "firstNightOnly": false,
+            "singleAction": false
         }
     ]
 }

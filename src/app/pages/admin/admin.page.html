@@ -13,5 +13,24 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-button (click)="sendTurn()">turn Test</ion-button>
+
+  <div *ngIf="gameState === 'setup'">
+    <ion-grid class="setup">
+      <ion-row>
+        <ion-col>
+          <h1>Setup</h1>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          Player Count:
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button color="success">Start</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 </ion-content>

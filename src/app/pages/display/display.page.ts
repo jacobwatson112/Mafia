@@ -15,6 +15,7 @@ export class DisplayPage implements OnInit {
 
   messageType: BroadcastType
   role?: Role
+  displayText?: string;
 
   constructor(
     private broadcastService: BroadcastService,
@@ -32,6 +33,11 @@ export class DisplayPage implements OnInit {
         
         case BroadcastType.Clear:
           this.role = undefined
+          this.displayText = undefined
+          break;
+
+        case BroadcastType.Text:
+          this.displayText = msg.text
           break;
 
         case BroadcastType.Test:

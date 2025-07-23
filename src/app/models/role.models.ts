@@ -3,4 +3,7 @@ export interface Role extends Record<string, any> {
     description: string;
     text?: string;
     adminInfo?: string;
+    wakeUp: boolean;
+    firstNightOnly: boolean;
+    singleAction: boolean;
 }

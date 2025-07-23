@@ -35,4 +35,18 @@
       </ion-row>
     </ion-grid>
   </div>
+
+  <div *ngIf="messageType === 'text'">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="10" offset="1" class="content">
+          <ion-row>
+            <ion-col class="role-title">
+              {{displayText}}
+            </ion-col>
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 </ion-content>
