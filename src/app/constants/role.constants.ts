@@ -18,3 +18,9 @@ export enum RoleType {
     Thing = 'Thing',
     Villager = 'Villager',
 }
+
+export enum RoleColor {
+    black = 'black',
+    red = 'red',
+    purple = 'purple',
+}

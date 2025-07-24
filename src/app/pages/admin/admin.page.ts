@@ -34,6 +34,6 @@ export class AdminPage {
   }
 
   sendTurn() {
-    this.broadcastService.sendMessage({ type: BroadcastType.Role, role: RoleType.GuardianAngel });
+    this.broadcastService.sendMessage({ type: BroadcastType.Role, role: RoleType.Doppelganger });
   }
 }
