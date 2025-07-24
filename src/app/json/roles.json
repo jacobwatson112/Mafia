@@ -4,6 +4,7 @@
       "name": "Altruist",
       "description": "You may choose ONE person to bring back from the dead",
       "text": "You may only do this ONCE per game",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -20,6 +21,7 @@
       "name": "Clairvoyant",
       "description": "You may see the role of a dead player",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -36,6 +38,7 @@
       "name": "Cupid",
       "description": "Choose two players. If one dies, so will the other",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -52,6 +55,7 @@
       "name": "Detective",
       "description": "Choose another player, you will be able to see if they are part of the Mafia",
       "text": "Note: The Mafia Boss cannot be detected, while the Tanner will be a FALSE POSITIVE",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -68,6 +72,7 @@
       "name": "Doctor",
       "description": "Choose a player to save",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -84,6 +89,7 @@
       "name": "Doppelganger",
       "description": "Choose another player, you are now that role.",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -100,6 +106,7 @@
       "name": "Gambler",
       "description": "Choose a player you think will survive. You won't die until they do",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": true,
@@ -116,6 +123,7 @@
       "name": "Guardian Angel",
       "description": "Choose another player to give them an EXTRA LIFE",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": true,
@@ -132,14 +140,15 @@
       "name": "Investigator",
       "description": "You may see the role of ONE player (Living or Dead).",
       "text": "You may only do this ONCE per game",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": true,
       "cards": [
         {
-          "name": "",
-          "char": "",
+          "name": "♦10",
+          "char": "🃊",
           "color": "red"
         }
       ]
@@ -148,6 +157,7 @@
       "name": "Mafia",
       "description": "Kill everyone, don't get caught",
       "text": "Note: Chosen by majority vote",
+      "players": 1,
       "adminInfo": "Wake up the Mafia Boss too",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -157,6 +167,21 @@
           "name": "♠2",
           "char": "🂢",
           "color": "black"
+        },
+        {
+          "name": "♣2",
+          "char": "🃒",
+          "color": "black"
+        },
+        {
+          "name": "♠3",
+          "char": "🂣",
+          "color": "black"
+        },
+        {
+          "name": "♣3",
+          "char": "🃓",
+          "color": "black"
         }
       ]
     },
@@ -164,6 +189,7 @@
       "name": "Mafia Boss",
       "description": "A Mafia that cannot be detected",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": false,
       "firstNightOnly": false,
@@ -180,6 +206,7 @@
       "name": "Masons",
       "description": "Look at the other Masons",
       "text": "",
+      "players": 2,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": true,
@@ -201,6 +228,7 @@
       "name": "Mayor",
       "description": "Get TWO votes during the trial and the tie breaker",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": false,
       "firstNightOnly": false,
@@ -217,6 +245,7 @@
       "name": "Sniper",
       "description": "Kill ONE player at any point",
       "text": "Note: The doctor cannot save them",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -233,6 +262,7 @@
       "name": "Tanner",
       "description": "Win the game by getting voted as Mafia during the Trial",
       "text": "",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": false,
       "firstNightOnly": false,
@@ -248,7 +278,8 @@
     {
       "name": "Taxi Driver",
       "description": "Cancel another players action",
-      "text": "Note: If a Mafia is selected, they will have a chance to fail their action based on how many other Mafia are present <br> If the player could only do their action once per game they will be able to do it again on the next night.",
+      "text": "Note: If a Mafia is selected, they will have a chance to fail their action based on how many other Mafia are present. If the player could only do their action once per game they will be able to do it again on the next night.",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": false,
@@ -265,14 +296,15 @@
       "name": "Thing",
       "description": "Poke the player on your RIGHT or LEFT",
       "text": "You may only do this ONCE per game",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": true,
       "firstNightOnly": true,
       "singleAction": true,
       "cards": [
         {
-          "name": "",
-          "char": "",
+          "name": "♥7",
+          "char": "🂷",
           "color": "red"
         }
       ]
@@ -281,14 +313,30 @@
       "name": "Villager",
       "description": "Vote the Mafia out",
       "text": "Note: You literally don't do anything else",
+      "players": 1,
       "adminInfo": "",
       "wakeUp": false,
       "firstNightOnly": false,
       "singleAction": false,
       "cards": [
         {
-          "name": "",
-          "char": "",
+          "name": "♥2",
+          "char": "🂲",
+          "color": "red"
+        },
+        {
+          "name": "♦2",
+          "char": "🃂",
+          "color": "red"
+        },
+        {
+          "name": "♥3",
+          "char": "🂳",
+          "color": "red"
+        },
+        {
+          "name": "♦3",
+          "char": "🃃",
           "color": "red"
         }
       ]

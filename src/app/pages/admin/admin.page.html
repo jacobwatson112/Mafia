@@ -8,28 +8,99 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <ion-button (click)="onSendTestClick()">Display Test</ion-button>
-        <ion-button (click)="onClearScreenClick()" color="danger">Clear Display</ion-button>
-        <ion-button (click)="sendTurn()">Turn Test</ion-button>
+        <h1>{{gameState}}</h1>
+      </ion-col>
+      <ion-col *ngIf="error">
+        {{error}}
       </ion-col>
     </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button (click)="onSendTestClick()">Display Test</ion-button>
+        <ion-button (click)="onSendShuffleClick()">Display Roles</ion-button>
+        <ion-button (click)="onClearScreenClick()" color="danger">Clear Display</ion-button>
+      </ion-col>
+    </ion-row>
+    <hr />
   </ion-grid>
 
-  <div *ngIf="gameState === 'setup'">
-    <ion-grid class="setup">
+  <div *ngIf="gameState === 'Setup'">
+    <ion-grid>
       <ion-row>
         <ion-col>
-          <h1>Setup</h1>
+          Player Count: {{totalUsers}}
+        </ion-col>
+        <ion-col>
+          Role Count: {{totalRoles}}
+        </ion-col>
+        <ion-col size="2">
+          <ion-input label="Mafia:" type="number" placeholder="1" [ngModel]="mafiaNo"
+            (ngModelChange)="onChangePlayerNo($event, 'Mafia')"></ion-input>
+        </ion-col>
+        <ion-col size="2">
+          <ion-input label="Villagers:" type="number" placeholder="1" [ngModel]="villagerNo"
+            (ngModelChange)="onChangePlayerNo($event, 'Villager')"></ion-input>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
-          Player Count:
+          <ion-chip *ngFor="let role of allRolesArray" (click)="roleClick(role.name)"
+            [color]="role.players > 0 ? 'success' : 'danger'">
+            {{ role.name }}
+          </ion-chip>
+
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-row *ngFor="let user of users">
+            <ion-col>
+              {{user.name}}
+            </ion-col>
+            <ion-col>
+              <ion-button (click)="deleteUser(user.name)" color="danger">Remove Player</ion-button>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-input [(ngModel)]="newUserName" label="Name"></ion-input>
+            </ion-col>
+            <ion-col>
+              <ion-button (click)="addUser()" color="success">Add Player</ion-button>
+            </ion-col>
+          </ion-row>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-button color="success">Start</ion-button>
+          <hr />
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-button (click)="onStartClick()" color="success">Start Game</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <div *ngIf="gameState === 'Set Roles'">
+    <ion-grid>
+      <ion-row>
+        <ion-col *ngFor="let user of users">
+          <ion-row>
+            {{user.name}}
+          </ion-row>
+          <ion-row style="font-size: 100px;">
+            {{user.card.char}}
+          </ion-row>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button (click)="onRolesSet()" color="success">Finished</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>

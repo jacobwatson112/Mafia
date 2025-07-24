@@ -7,28 +7,43 @@
 <ion-content class="ion-padding">
   <div *ngIf="messageType === 'test'">
     <div class="test-gif">
-      <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.tenor.com%2FyZxBto83TkEAAAAM%2Fmonkey-ape.gif&f=1&nofb=1&ipt=4c70fafcb9174ff97075ff06faeaf65260ff70ffebc3c088ca62ebf0b147d223"/>
+      <img
+        src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.tenor.com%2FyZxBto83TkEAAAAM%2Fmonkey-ape.gif&f=1&nofb=1&ipt=4c70fafcb9174ff97075ff06faeaf65260ff70ffebc3c088ca62ebf0b147d223" />
     </div>
-    
+
   </div>
 
-  <div *ngIf="messageType === 'role'">
+  <div *ngIf="messageType === 'role' || messageType === 'shuffle'">
     <ion-grid>
       <ion-row>
         <ion-col size="10" offset="1" class="content">
           <ion-row>
             <ion-col class="role-title">
-              {{role?.name}}
+              {{ role?.name }}
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="role?.cards?.length">
+            <ion-col *ngFor="let card of role.cards" [ngStyle]="{ 'color': card.color }">
+              <ion-row>
+                <ion-col class="card-char">
+                  {{ card.char }}
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col class="card-name">
+                  {{ card.name }}
+                </ion-col>
+              </ion-row>
             </ion-col>
           </ion-row>
           <ion-row>
             <ion-col class="role-description">
-              {{role?.description}}
+              {{ role?.description }}
             </ion-col>
           </ion-row>
           <ion-row>
             <ion-col class="role-text">
-              {{role?.text}}
+              {{ role?.text }}
             </ion-col>
           </ion-row>
         </ion-col>

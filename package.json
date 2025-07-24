@@ -29,6 +29,8 @@
     "@angular/router": "^20.1.0",
     "@ionic/angular": "^8.6.5",
     "@ionic/core": "^8.6.5",
+    "@types/lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

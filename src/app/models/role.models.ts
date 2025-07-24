@@ -4,6 +4,7 @@ export interface Role extends Record<string, any> {
     name: RoleType;
     description: string;
     text?: string;
+    players: number;
     adminInfo?: string;
     wakeUp: boolean;
     firstNightOnly: boolean;

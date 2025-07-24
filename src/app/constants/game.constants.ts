@@ -1,5 +1,6 @@
 export enum GameState {
-    Setup = 'setup',
-    Night = 'night',
-    Trial = 'trial'
+    Setup = 'Setup',
+    SetRoles = 'Set Roles',
+    Night = 'Night',
+    Trial = 'Trial'
 }
