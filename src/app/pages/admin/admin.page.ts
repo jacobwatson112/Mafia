@@ -7,7 +7,7 @@ import { Card, Role } from '../../models/role.models';
 import { getAllRoles, getAllRolesHash } from '../../helper/roles.helper';
 import { User } from '../../models/user.models';
 import { getAllUsers } from '../../helper/user.helper';
-import { addLife, detectUser, findUser, isUserAlive, removeLife, shuffle } from '../../helper/game.helper';
+import { addLife, detectUser, findUser, getLivingMafiaNo, getLivingVillagerNo, isUserAlive, removeLife, shuffle } from '../../helper/game.helper';
 
 @Component({
   selector: 'app-admin',
@@ -36,6 +36,8 @@ export class AdminPage {
   roleIsAwake: boolean;
   selectedUsers: { [roleName: string]: { user1?: string; user2?: string } } = {};
 
+  mafiaAlive: number
+
   doctorSaved: string;
   mafiaKilled: string;
   sniperShot: string;
@@ -43,6 +45,7 @@ export class AdminPage {
   gamblerBet: string;
   guardianAngelSaved: string;
   doppelgangerRole: Role
+  taxiDriverBlocks: string;
 
   get allRolesArray() {
     if (this.allRolesHash) {
@@ -78,7 +81,7 @@ export class AdminPage {
   constructor(private broadcastService: BroadcastService) { }
 
   ionViewWillEnter() {
-    this.broadcastService.sendMessage({ type: BroadcastType.Clear })
+    this.onClearScreen()
     this.allRolesHash = getAllRolesHash()
 
     this.mafiaNo = this.allRolesHash[RoleType.Mafia].players
@@ -110,7 +113,7 @@ export class AdminPage {
     this.broadcastService.sendMessage({ type: BroadcastType.Shuffle })
   }
 
-  onClearScreenClick() {
+  onClearScreen() {
     this.broadcastService.sendMessage({ type: BroadcastType.Clear })
   }
 
@@ -229,6 +232,7 @@ export class AdminPage {
     this.round += 1
     this.broadcastService.sendMessage({ type: BroadcastType.Text, text: 'Everyone, Close your eyes' })
     this.roleIsAwake = false
+    this.mafiaAlive = getLivingMafiaNo(this.users)
 
     for (let key in this.allRolesHash) {
       const role = this.allRolesHash[key]
@@ -239,6 +243,7 @@ export class AdminPage {
         role.wakeUp = false
       }
     }
+    
   }
 
   wakeRole(roleName) {
@@ -317,17 +322,30 @@ export class AdminPage {
       case RoleType.Doppelganger:
         this.doppelgangerRole = firstUser.role
         this.broadcastService.sendMessage({ type: BroadcastType.Doppelganger, role: firstUser.role.name })
+        break;
+
+      case RoleType.TaxiDriver:
+        this.taxiDriverBlocks = firstUserText
+        break;
     }
   }
 
   calculateResult() {
+    this.onClearScreen()
 
     // Remove Doppelganger from priority list
     if (this.round === 1) {
       const index = this.priorityRoles.findIndex(role => RoleType.Doppelganger);
       if (index !== -1) {
-        this.users.splice(index, 1);
+        this.priorityRoles.splice(index, 1);
       }
+    }
+
+    const mafiaCurrentlyAlive = getLivingMafiaNo(this.users)
+    if (mafiaCurrentlyAlive === 0) {
+      // end game
+    } else if (mafiaCurrentlyAlive < this.mafiaAlive) {
+      // A mafia has died somehow, roll to see if action completed
     }
 
     // Check if cupid couple are alive
@@ -335,5 +353,30 @@ export class AdminPage {
     // Check if gambler is alive
 
     // Check if we need to wake the doppelganger up again
+
+    this.gameState = GameState.Story
+  }
+
+  beginTrial() {
+    // We want to show a win screen here
+    this.checkWinCondition()
+    this.gameState = GameState.Trial
+  }
+
+  checkWinCondition() {
+    const mafiaCurrentlyAlive = getLivingMafiaNo(this.users)
+    const villagerCurrentlyAlive = getLivingVillagerNo(this.users)
+
+    if (mafiaCurrentlyAlive === 0) {
+      // Villagers win
+      this.broadcastService.sendMessage({ type: BroadcastType.Victory, role: RoleType.Villager })
+      return true
+    }
+    if (villagerCurrentlyAlive <= mafiaCurrentlyAlive) {
+      // Mafia win
+      this.broadcastService.sendMessage({ type: BroadcastType.Victory, role: RoleType.Mafia })
+      return true
+    }
+    return false
   }
 }

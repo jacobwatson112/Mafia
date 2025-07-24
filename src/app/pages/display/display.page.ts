@@ -63,6 +63,9 @@ export class DisplayPage implements OnInit {
         case BroadcastType.Doppelganger:
           this.displayDoppelgangerRole(msg.role)
           break;
+
+        case BroadcastType.Victory:
+          break;
       }
 
       this.cdr.detectChanges();

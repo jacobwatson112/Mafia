@@ -109,7 +109,7 @@
       "cards": [
         {
           "name": "Joker",
-          "char": "🂿",
+          "char": "🃏︎",
           "color": "purple"
         }
       ]
@@ -347,7 +347,7 @@
       "name": "Villager",
       "description": "Vote the Mafia out",
       "text": "Note: You literally don't do anything else",
-      "players": 1,
+      "players": 0,
       "adminInfo": "",
       "wakeUp": false,
       "firstNightOnly": false,

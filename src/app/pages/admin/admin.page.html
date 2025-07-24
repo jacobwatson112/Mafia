@@ -8,17 +8,19 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <h1>{{gameState}}</h1>
+        <h1>{{ gameState }}</h1>
       </ion-col>
       <ion-col *ngIf="error">
-        {{error}}
+        {{ error }}
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col>
         <ion-button (click)="onSendTestClick()">Display Test</ion-button>
         <ion-button (click)="onSendShuffleClick()">Display Roles</ion-button>
-        <ion-button (click)="onClearScreenClick()" color="danger">Clear Display</ion-button>
+        <ion-button (click)="onClearScreen()" color="danger"
+          >Clear Display</ion-button
+        >
       </ion-col>
     </ion-row>
     <hr />
@@ -27,28 +29,36 @@
   <div *ngIf="gameState === 'Setup'">
     <ion-grid>
       <ion-row>
-        <ion-col>
-          Player Count: {{totalUsers}}
-        </ion-col>
-        <ion-col>
-          Role Count: {{totalRoles}}
+        <ion-col> Player Count: {{ totalUsers }} </ion-col>
+        <ion-col> Role Count: {{ totalRoles }} </ion-col>
+        <ion-col size="2">
+          <ion-input
+            label="Mafia:"
+            type="number"
+            placeholder="1"
+            [ngModel]="mafiaNo"
+            (ngModelChange)="onChangePlayerNo($event, 'Mafia')"
+          ></ion-input>
         </ion-col>
         <ion-col size="2">
-          <ion-input label="Mafia:" type="number" placeholder="1" [ngModel]="mafiaNo"
-            (ngModelChange)="onChangePlayerNo($event, 'Mafia')"></ion-input>
-        </ion-col>
-        <ion-col size="2">
-          <ion-input label="Villagers:" type="number" placeholder="1" [ngModel]="villagerNo"
-            (ngModelChange)="onChangePlayerNo($event, 'Villager')"></ion-input>
+          <ion-input
+            label="Villagers:"
+            type="number"
+            placeholder="1"
+            [ngModel]="villagerNo"
+            (ngModelChange)="onChangePlayerNo($event, 'Villager')"
+          ></ion-input>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-chip *ngFor="let role of allRolesArray" (click)="roleClick(role.name)"
-            [color]="role.players > 0 ? 'success' : 'danger'">
+          <ion-chip
+            *ngFor="let role of allRolesArray"
+            (click)="roleClick(role.name)"
+            [color]="role.players > 0 ? 'success' : 'danger'"
+          >
             {{ role.name }}
           </ion-chip>
-
         </ion-col>
       </ion-row>
 
@@ -56,10 +66,12 @@
         <ion-col>
           <ion-row *ngFor="let user of users">
             <ion-col>
-              {{user.name}}
+              {{ user.name }}
             </ion-col>
             <ion-col>
-              <ion-button (click)="deleteUser(user.name)" color="danger">Remove Player</ion-button>
+              <ion-button (click)="deleteUser(user.name)" color="danger"
+                >Remove Player</ion-button
+              >
             </ion-col>
           </ion-row>
           <ion-row>
@@ -67,7 +79,9 @@
               <ion-input [(ngModel)]="newUserName" label="Name"></ion-input>
             </ion-col>
             <ion-col>
-              <ion-button (click)="addUser()" color="success">Add Player</ion-button>
+              <ion-button (click)="addUser()" color="success"
+                >Add Player</ion-button
+              >
             </ion-col>
           </ion-row>
         </ion-col>
@@ -80,7 +94,9 @@
 
       <ion-row>
         <ion-col>
-          <ion-button (click)="onStartClick()" color="success">Start Game</ion-button>
+          <ion-button (click)="onStartClick()" color="success"
+            >Start Game</ion-button
+          >
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -91,16 +107,18 @@
       <ion-row>
         <ion-col *ngFor="let user of users">
           <ion-row>
-            {{user.name}}
+            {{ user.name }}
           </ion-row>
-          <ion-row style="font-size: 100px;">
-            {{user.card.char}}
+          <ion-row style="font-size: 100px">
+            {{ user.card.char }}
           </ion-row>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-button (click)="onRolesSet()" color="success">Finished</ion-button>
+          <ion-button (click)="onRolesSet()" color="success"
+            >Finished</ion-button
+          >
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -110,43 +128,92 @@
     <ion-grid>
       <ion-row>
         <ion-col>
-          <h2>Round: {{round}}</h2>
+          <h2>Round: {{ round }}</h2>
         </ion-col>
       </ion-row>
       <ion-row *ngFor="let role of nightRolesArray">
         <ion-col *ngIf="role.players > 0 && role.wakeUp">
           <ion-row class="night-row">
             <ion-col size="6">
-              <p>{{role.name}}</p>
+              <p>{{ role.name }}</p>
 
-              <p>{{role.description}}</p>
-              <p style="color: purple;">{{role.adminInfo}}</p>
-
+              <p>{{ role.description }}</p>
+              <p style="color: purple">{{ role.adminInfo }}</p>
             </ion-col>
             <ion-col *ngIf="!role.isAwake" size="2">
-              <ion-button [disabled]="roleIsAwake" (click)="wakeRole(role.name)"
-                [color]="role.hasWokenUp ? 'danger' : 'secondary'">Wake {{role.name}}</ion-button>
+              <ion-button
+                [disabled]="roleIsAwake"
+                (click)="wakeRole(role.name)"
+                [color]="role.hasWokenUp ? 'danger' : 'secondary'"
+                >Wake {{ role.name }}</ion-button
+              >
             </ion-col>
             <ion-col *ngIf="role.isAwake">
-              <ion-button (click)="sleepRole(role.name)" color="warning">Sleep</ion-button>
-
+              <ion-button (click)="sleepRole(role.name)" color="warning"
+                >Sleep</ion-button
+              >
             </ion-col>
             <ion-col *ngIf="role.isAwake && role.saveAction">
-              <select [(ngModel)]="selectedUsers[role.name].user1" name="{{role.name}}_user1">
-                <option *ngFor="let user of users" [value]="user.name">{{ user.name }}</option>
+              <select
+                [(ngModel)]="selectedUsers[role.name].user1"
+                name="{{ role.name }}_user1"
+              >
+                <option *ngFor="let user of users" [value]="user.name">
+                  {{ user.name }}
+                </option>
               </select>
 
-              <select *ngIf="role.requiresTwoUsers" [(ngModel)]="selectedUsers[role.name].user2"
-                name="{{role.name}}_user2">
-                <option *ngFor="let user of users" [value]="user.name">{{ user.name }}</option>
+              <select
+                *ngIf="role.requiresTwoUsers"
+                [(ngModel)]="selectedUsers[role.name].user2"
+                name="{{ role.name }}_user2"
+              >
+                <option *ngFor="let user of users" [value]="user.name">
+                  {{ user.name }}
+                </option>
               </select>
 
-              <ion-button (click)="saveTurn(role.name, selectedUsers[role.name])" color="success">
+              <ion-button
+                (click)="saveTurn(role.name, selectedUsers[role.name])"
+                color="success"
+              >
                 Save
               </ion-button>
             </ion-col>
-
           </ion-row>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button (click)="calculateResult()" color="success">Complete Night</ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col *ngFor="let user of users">
+          <ion-row>
+            {{ user.name }}
+          </ion-row>
+          <ion-row style="font-size: 100px">
+            {{ user.card.char }}
+          </ion-row>
+          <ion-row>
+            {{ user.role.name }}
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <div *ngIf="gameState === 'Story'">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <h2>Round: {{ round }}</h2>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-button (click)="beginTrial()" color="success">Continue to Trial</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -156,7 +223,7 @@
     <ion-grid>
       <ion-row>
         <ion-col>
-          <h2>Round: {{round}}</h2>
+          <h2>Round: {{ round }}</h2>
         </ion-col>
       </ion-row>
     </ion-grid>

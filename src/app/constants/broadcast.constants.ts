@@ -4,5 +4,6 @@ export enum BroadcastType {
     Role = 'role',
     Shuffle = 'shuffle',
     Test = 'test',
-    Text = 'text'
+    Text = 'text',
+    Victory = 'victory'
 }
