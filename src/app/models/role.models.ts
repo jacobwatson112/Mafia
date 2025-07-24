@@ -7,8 +7,13 @@ export interface Role extends Record<string, any> {
     players: number;
     adminInfo?: string;
     wakeUp: boolean;
+    isAwake: boolean;
+    hasWokenUp: boolean;
     firstNightOnly: boolean;
     singleAction: boolean;
+    singleActionPerformed: boolean;
+    saveAction: boolean;
+    requiresTwoUsers: boolean;
     cards: Card[],
 }
 

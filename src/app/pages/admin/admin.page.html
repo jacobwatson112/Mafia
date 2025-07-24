@@ -105,4 +105,60 @@
       </ion-row>
     </ion-grid>
   </div>
+
+  <div *ngIf="gameState === 'Night'">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <h2>Round: {{round}}</h2>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngFor="let role of nightRolesArray">
+        <ion-col *ngIf="role.players > 0 && role.wakeUp">
+          <ion-row class="night-row">
+            <ion-col size="6">
+              <p>{{role.name}}</p>
+
+              <p>{{role.description}}</p>
+              <p style="color: purple;">{{role.adminInfo}}</p>
+
+            </ion-col>
+            <ion-col *ngIf="!role.isAwake" size="2">
+              <ion-button [disabled]="roleIsAwake" (click)="wakeRole(role.name)"
+                [color]="role.hasWokenUp ? 'danger' : 'secondary'">Wake {{role.name}}</ion-button>
+            </ion-col>
+            <ion-col *ngIf="role.isAwake">
+              <ion-button (click)="sleepRole(role.name)" color="warning">Sleep</ion-button>
+
+            </ion-col>
+            <ion-col *ngIf="role.isAwake && role.saveAction">
+              <select [(ngModel)]="selectedUsers[role.name].user1" name="{{role.name}}_user1">
+                <option *ngFor="let user of users" [value]="user.name">{{ user.name }}</option>
+              </select>
+
+              <select *ngIf="role.requiresTwoUsers" [(ngModel)]="selectedUsers[role.name].user2"
+                name="{{role.name}}_user2">
+                <option *ngFor="let user of users" [value]="user.name">{{ user.name }}</option>
+              </select>
+
+              <ion-button (click)="saveTurn(role.name, selectedUsers[role.name])" color="success">
+                Save
+              </ion-button>
+            </ion-col>
+
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <div *ngIf="gameState === 'Trial'">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <h2>Round: {{round}}</h2>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 </ion-content>

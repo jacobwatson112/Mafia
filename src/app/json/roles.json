@@ -9,6 +9,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": true,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♥A",
@@ -26,6 +28,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♦K",
@@ -43,6 +47,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": true,
+      "requiresTwoUsers": true,
       "cards": [
         {
           "name": "♥J",
@@ -60,6 +66,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♣K",
@@ -77,6 +85,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♥Q",
@@ -94,6 +104,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "Joker",
@@ -111,6 +123,8 @@
       "wakeUp": true,
       "firstNightOnly": true,
       "singleAction": true,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♥8",
@@ -128,6 +142,8 @@
       "wakeUp": true,
       "firstNightOnly": true,
       "singleAction": true,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♥11",
@@ -145,6 +161,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": true,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♦10",
@@ -162,6 +180,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♠2",
@@ -194,6 +214,8 @@
       "wakeUp": false,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♠A",
@@ -211,6 +233,8 @@
       "wakeUp": true,
       "firstNightOnly": true,
       "singleAction": true,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♥6",
@@ -233,6 +257,8 @@
       "wakeUp": false,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♦A",
@@ -250,6 +276,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": true,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♦9",
@@ -267,6 +295,8 @@
       "wakeUp": false,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♠12",
@@ -284,6 +314,8 @@
       "wakeUp": true,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": true,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♦13",
@@ -301,6 +333,8 @@
       "wakeUp": true,
       "firstNightOnly": true,
       "singleAction": true,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♥7",
@@ -318,6 +352,8 @@
       "wakeUp": false,
       "firstNightOnly": false,
       "singleAction": false,
+      "saveAction": false,
+      "requiresTwoUsers": false,
       "cards": [
         {
           "name": "♥2",

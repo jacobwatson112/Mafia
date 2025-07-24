@@ -4,4 +4,5 @@ export interface User extends Record<string, any> {
     name: string;
     role?: Role;
     card?: Card;
+    lives?: number;
 }

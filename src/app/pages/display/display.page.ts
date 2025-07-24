@@ -59,6 +59,10 @@ export class DisplayPage implements OnInit {
         case BroadcastType.Test:
           //
           break;
+
+        case BroadcastType.Doppelganger:
+          this.displayDoppelgangerRole(msg.role)
+          break;
       }
 
       this.cdr.detectChanges();
@@ -67,6 +71,12 @@ export class DisplayPage implements OnInit {
 
   displayRole(roleName: RoleType) {
     this.role = getRole(roleName)
+  }
+
+  displayDoppelgangerRole(roleName: RoleType) {
+    const doppelgangerRole = getRole(RoleType.Doppelganger)
+    this.role = getRole(roleName)
+    this.role.cards = doppelgangerRole.cards
   }
 
   startRoleCycle() {

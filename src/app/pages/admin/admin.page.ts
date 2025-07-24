@@ -7,7 +7,7 @@ import { Card, Role } from '../../models/role.models';
 import { getAllRoles, getAllRolesHash } from '../../helper/roles.helper';
 import { User } from '../../models/user.models';
 import { getAllUsers } from '../../helper/user.helper';
-import { shuffle } from '../../helper/game.helper';
+import { addLife, detectUser, findUser, isUserAlive, removeLife, shuffle } from '../../helper/game.helper';
 
 @Component({
   selector: 'app-admin',
@@ -31,11 +31,47 @@ export class AdminPage {
 
   newUserName: string
 
+  round: number
+  priorityRoles = [RoleType.Doppelganger, RoleType.Mafia, RoleType.Doctor, RoleType.Detective]
+  roleIsAwake: boolean;
+  selectedUsers: { [roleName: string]: { user1?: string; user2?: string } } = {};
+
+  doctorSaved: string;
+  mafiaKilled: string;
+  sniperShot: string;
+  cupidConnected: string[];
+  gamblerBet: string;
+  guardianAngelSaved: string;
+  doppelgangerRole: Role
+
   get allRolesArray() {
     if (this.allRolesHash) {
       return Object.values(this.allRolesHash);
     }
     return undefined
+  }
+
+  get nightRolesArray() {
+    if (!this.allRolesHash) return [];
+
+    const roles = Object.values(this.allRolesHash);
+
+    // Customize this array with the role names you want to appear at the top
+
+
+    return roles.sort((a, b) => {
+      const aPriority = this.priorityRoles.indexOf(a.name);
+      const bPriority = this.priorityRoles.indexOf(b.name);
+
+      // If both are priority, sort by their order in priorityRoles
+      if (aPriority !== -1 && bPriority !== -1) {
+        return aPriority - bPriority;
+      }
+      if (aPriority !== -1) return -1;
+      if (bPriority !== -1) return 1;
+
+      return a.name.localeCompare(b.name);
+    });
   }
 
 
@@ -50,6 +86,7 @@ export class AdminPage {
 
     this.users = getAllUsers() || []
     this.totalUsers = this.users.length
+    this.initSelectedUsers();
 
     this.resetGameState()
   }
@@ -63,7 +100,6 @@ export class AdminPage {
     }
 
     this.calculateTotalRoles()
-    console.log(this.allRolesHash)
   }
 
   onSendTestClick() {
@@ -76,6 +112,16 @@ export class AdminPage {
 
   onClearScreenClick() {
     this.broadcastService.sendMessage({ type: BroadcastType.Clear })
+  }
+
+  initSelectedUsers() {
+    if (!this.allRolesArray) return;
+
+    for (const role of this.allRolesArray) {
+      if (!this.selectedUsers[role.name]) {
+        this.selectedUsers[role.name] = {};
+      }
+    }
   }
 
   calculateTotalRoles() {
@@ -144,16 +190,13 @@ export class AdminPage {
     for (let key in this.allRolesHash) {
       allRoles.push(this.allRolesHash[key])
     }
-    
-    this.assignRolesAndCards(this.users, allRoles)
 
-    console.log(this.users)
+    this.assignRolesAndCards(this.users, allRoles)
   }
 
   assignRolesAndCards(users: User[], allRoles: Role[]) {
     const assignments: { role: Role, card: Card }[] = [];
 
-    // 1. Build role-card pairs
     for (const role of allRoles) {
       for (let i = 0; i < role.players; i++) {
         const card = role.cards[i];
@@ -164,10 +207,7 @@ export class AdminPage {
       }
     }
 
-    // 2. Shuffle role-card assignments (but not users)
     const shuffledAssignments = shuffle(assignments);
-
-    // 3. Assign shuffled roles and cards to users in fixed order
     if (users.length !== shuffledAssignments.length) {
       throw new Error("Mismatch between users and role assignments");
     }
@@ -175,10 +215,125 @@ export class AdminPage {
     users.forEach((user, i) => {
       user.role = shuffledAssignments[i].role;
       user.card = shuffledAssignments[i].card;
+      user.lives = 1;
     });
   }
 
   onRolesSet() {
+    this.round = 0
+    this.runNight()
+  }
 
+  runNight() {
+    this.gameState = GameState.Night
+    this.round += 1
+    this.broadcastService.sendMessage({ type: BroadcastType.Text, text: 'Everyone, Close your eyes' })
+    this.roleIsAwake = false
+
+    for (let key in this.allRolesHash) {
+      const role = this.allRolesHash[key]
+      role.hasWokenUp = false
+      if (role.wakeUp && role.firstNightOnly && this.round > 1) {
+        role.wakeUp = false
+      } else if (role.wakeUp && role.singleActionPerformed) {
+        role.wakeUp = false
+      }
+    }
+  }
+
+  wakeRole(roleName) {
+    this.allRolesHash[roleName].isAwake = true
+    this.allRolesHash[roleName].hasWokenUp = true
+    this.roleIsAwake = true
+    this.broadcastService.sendMessage({ type: BroadcastType.Role, role: roleName })
+  }
+
+  sleepRole(roleName) {
+    this.allRolesHash[roleName].isAwake = false
+    this.roleIsAwake = false
+    this.broadcastService.sendMessage({ type: BroadcastType.Text, text: roleName + ' go to sleep 😴' })
+  }
+
+  saveTurn(roleName, selected: { user1?: string; user2?: string }) {
+    const firstUserName = selected.user1
+    const firstUser = findUser(this.users, firstUserName)
+    const firstUserText = firstUserName + ' ' + firstUser.role.name
+    const secondUserName = selected.user2
+    const role = this.allRolesHash[roleName]
+    
+    //const secondUser = secondUserName ? findUser(this.users, firstUserName) : undefined
+
+    if (role.singleAction) {
+      role.singleActionPerformed = true
+    }
+
+    switch (roleName) {
+      case RoleType.Altruist:
+        if (!isUserAlive(this.users, firstUserName)) {
+          addLife(this.users, firstUserName)
+        }
+        break;
+      case RoleType.GuardianAngel:
+        addLife(this.users, firstUserName)
+        this.guardianAngelSaved = firstUserText
+        break;
+      case RoleType.Doctor:
+        addLife(this.users, firstUserName)
+        this.doctorSaved = firstUserText
+        break;
+
+      case RoleType.Mafia:
+        removeLife(this.users, firstUserName, roleName)
+        this.mafiaKilled = firstUserText
+        break
+      case RoleType.Sniper:
+        removeLife(this.users, firstUserName, roleName)
+        this.sniperShot = firstUserText
+        break
+
+      case RoleType.Detective:
+        const isMafia = detectUser(this.users, firstUserName)
+        this.broadcastService.sendMessage({ type: BroadcastType.Text, text: isMafia ? 'They are Mafia ✅' : 'They arent Mafia ❌' })
+        break;
+      case RoleType.Clairvoyant:
+        if (!isUserAlive(this.users, firstUserName)) {
+          this.broadcastService.sendMessage({ type: BroadcastType.Text, text: 'They are a ' + firstUser.role.name })
+        }
+        break;
+      case RoleType.Investigator:
+        this.broadcastService.sendMessage({ type: BroadcastType.Text, text: 'They are a ' + firstUser.role.name })
+        break;
+
+      case RoleType.Cupid:
+        this.cupidConnected = []
+        this.cupidConnected.push(firstUserText)
+        this.cupidConnected.push(secondUserName)
+        break;
+
+      case RoleType.Gambler:
+        this.gamblerBet = firstUserText
+        break;
+
+      case RoleType.Doppelganger:
+        this.doppelgangerRole = firstUser.role
+        this.broadcastService.sendMessage({ type: BroadcastType.Doppelganger, role: firstUser.role.name })
+    }
+  }
+
+  calculateResult() {
+
+    // Remove Doppelganger from priority list
+    if (this.round === 1) {
+      const index = this.priorityRoles.findIndex(role => RoleType.Doppelganger);
+      if (index !== -1) {
+        this.users.splice(index, 1);
+      }
+    }
+
+    // Check if cupid couple are alive
+    
+    // Check if gambler is alive
+
+    // Check if we need to wake the doppelganger up again
   }
 }

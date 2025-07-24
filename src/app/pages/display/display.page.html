@@ -13,12 +13,13 @@
 
   </div>
 
-  <div *ngIf="messageType === 'role' || messageType === 'shuffle'">
+  <div *ngIf="messageType === 'role' || messageType === 'shuffle' || messageType === 'doppelganger'">
     <ion-grid>
       <ion-row>
         <ion-col size="10" offset="1" class="content">
           <ion-row>
             <ion-col class="role-title">
+              <span *ngIf="messageType === 'doppelganger'">Doppelganger </span>
               {{ role?.name }}
             </ion-col>
           </ion-row>
