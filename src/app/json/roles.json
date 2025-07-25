@@ -146,8 +146,8 @@
       "requiresTwoUsers": false,
       "cards": [
         {
-          "name": "♥11",
-          "char": "🃫",
+          "name": "♦J",
+          "char": "🃋",
           "color": "red"
         }
       ]
@@ -299,8 +299,8 @@
       "requiresTwoUsers": false,
       "cards": [
         {
-          "name": "♠12",
-          "char": "🃬",
+          "name": "♠10",
+          "char": "🂪",
           "color": "black"
         }
       ]
@@ -318,8 +318,8 @@
       "requiresTwoUsers": false,
       "cards": [
         {
-          "name": "♦13",
-          "char": "🃭",
+          "name": "♦5",
+          "char": "🃅",
           "color": "red"
         }
       ]

@@ -3,5 +3,6 @@ export enum GameState {
     SetRoles = 'Set Roles',
     Night = 'Night',
     Story = 'Story',
-    Trial = 'Trial'
+    Trial = 'Trial',
+    TrialComplete = 'Trial Complete'
 }

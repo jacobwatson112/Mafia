@@ -20,6 +20,7 @@ export class DisplayPage implements OnInit {
   intervalId: any;
   currentRoleIndex = 0;
   displayText: string;
+  winningRole: string
 
   constructor(
     private broadcastService: BroadcastService,
@@ -46,6 +47,7 @@ export class DisplayPage implements OnInit {
         case BroadcastType.Clear:
           this.role = undefined
           this.displayText = undefined
+          this.winningRole = undefined
           break;
 
         case BroadcastType.Text:
@@ -65,6 +67,7 @@ export class DisplayPage implements OnInit {
           break;
 
         case BroadcastType.Victory:
+          this.winningRole = msg.role
           break;
       }
 

@@ -17,6 +17,16 @@ export function findUser(users: User[], userName: string): User {
   return undefined;
 }
 
+export function getUsersWithRole(users: User[], roleName: RoleType): User[] {
+  const usersWithRole: User[] = []
+  for (let user of users) {
+    if (user.role.name === roleName) {
+      usersWithRole.push(user)
+    }
+  }
+  return usersWithRole
+}
+
 export function detectUser(users: User[], userName: string): boolean {
   const user = findUser(users, userName);
   if (user.role.name === RoleType.Mafia || user.role.name === RoleType.Tanner) {
@@ -38,7 +48,7 @@ export function addLife(users: User[], userName: string) {
   user.lives += 1;
 }
 
-export function removeLife(users: User[], userName: string, role: RoleType) {
+export function removeLife(users: User[], userName: string, role?: RoleType) {
   const user = findUser(users, userName);
   if (role === RoleType.Mafia && user.role.name === RoleType.Gambler) {
     return;
@@ -48,7 +58,7 @@ export function removeLife(users: User[], userName: string, role: RoleType) {
 
 export function getLivingMafiaNo(users: User[]): number {
   let mafiaAlive: number = 0;
-  for (let user of this.users) {
+  for (let user of users) {
     if (user.lives > 0) {
       if (
         user.role.name === RoleType.Mafia ||
@@ -63,10 +73,10 @@ export function getLivingMafiaNo(users: User[]): number {
 
 export function getLivingVillagerNo(users: User[]): number {
   let villagerAlive: number = 0;
-  for (let user of this.users) {
+  for (let user of users) {
     if (user.lives > 0) {
       if (
-        user.role.name !== RoleType.Mafia ||
+        user.role.name !== RoleType.Mafia &&
         user.role.name !== RoleType.MafiaBoss
       ) {
         villagerAlive += 1;

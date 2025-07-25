@@ -12,6 +12,7 @@ export interface Role extends Record<string, any> {
     firstNightOnly: boolean;
     singleAction: boolean;
     singleActionPerformed: boolean;
+    actionPerformed: boolean;
     saveAction: boolean;
     requiresTwoUsers: boolean;
     cards: Card[],
