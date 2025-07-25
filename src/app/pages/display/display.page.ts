@@ -103,7 +103,7 @@ export class DisplayPage implements OnInit {
           this.role = this.allRoles[this.currentRoleIndex];
           // No need to call detectChanges() explicitly here!
         });
-      }, 10000);
+      }, 5000);
     });
   }
 }

@@ -485,6 +485,7 @@ export class AdminPage {
       const cupid1User = findUser(this.postNightUsers, cupid1);
       const cupid1PreUser = findUser(this.users, cupid1);
 
+      // cupid isnt working
       if (cupid0User.lives < cupid0PreUser.lives) {
         removeLifeFromUser(cupid1User);
       } else if (cupid1User.lives < cupid1PreUser.lives) {
@@ -493,6 +494,7 @@ export class AdminPage {
     }
 
     // Check if gambler is alive
+    // Gamber should be able to die after the trial
     if (this.gamblerBet) {
       const gamblerUser = findUser(this.postNightUsers, this.gamblerBet)
       if (gamblerUser.lives < 1) {
@@ -586,3 +588,6 @@ export class AdminPage {
     this.runNight();
   }
 }
+
+// round prefs  dont work
+// doppleganger role icon
