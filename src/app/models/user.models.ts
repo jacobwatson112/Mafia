@@ -5,4 +5,5 @@ export interface User extends Record<string, any> {
     role?: Role;
     card?: Card;
     lives?: number;
+    doppelgangerRole?: Role;
 }

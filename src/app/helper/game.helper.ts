@@ -48,12 +48,16 @@ export function addLife(users: User[], userName: string) {
   user.lives += 1;
 }
 
-export function removeLife(users: User[], userName: string, role?: RoleType) {
-  const user = findUser(users, userName);
-  if (role === RoleType.Mafia && user.role.name === RoleType.Gambler) {
+export function removeLifeFromUser(user: User, role?: RoleType) {
+    if (role === RoleType.Mafia && user.role.name === RoleType.Gambler) {
     return;
   }
   user.lives -= 1;
+}
+
+export function removeLife(users: User[], userName: string, role?: RoleType) {
+  const user = findUser(users, userName);
+  removeLifeFromUser(user, role)
 }
 
 export function getLivingMafiaNo(users: User[]): number {

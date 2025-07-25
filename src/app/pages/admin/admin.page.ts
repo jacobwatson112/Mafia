@@ -16,7 +16,8 @@ import {
   getUsersWithRole,
   isUserAlive,
   removeLife,
-  shuffle,
+  removeLifeFromUser,
+  shuffle
 } from '../../helper/game.helper';
 import _, { find } from 'lodash';
 
@@ -55,13 +56,17 @@ export class AdminPage {
 
   mafiaAlive: number;
 
+  altruistResurrected: string
   doctorSaved: string;
   mafiaKilled: string;
   sniperShot: string;
   cupidConnected: string[];
   gamblerBet: string;
+  gamblerAlive: boolean;
+  gamblerName: string;
   guardianAngelSaved: string;
   doppelgangerRole: Role;
+  doppelgangerAction: string;
   taxiDriverBlocks: string;
 
   mayorUser: User;
@@ -94,7 +99,7 @@ export class AdminPage {
     });
   }
 
-  constructor(private broadcastService: BroadcastService) {}
+  constructor(private broadcastService: BroadcastService) { }
 
   ionViewWillEnter() {
     this.onClearScreen();
@@ -256,6 +261,8 @@ export class AdminPage {
 
     this.cupidConnected = [];
     this.sniperShot = undefined;
+    this.gamblerAlive = true;
+    this.altruistResurrected = undefined;
 
     for (let key in this.allRolesHash) {
       const role = this.allRolesHash[key];
@@ -277,6 +284,15 @@ export class AdminPage {
       type: BroadcastType.Role,
       role: roleName,
     });
+    if (roleName === RoleType.Doppelganger) {
+      const doppelganger = getUsersWithRole(this.users, RoleType.Doppelganger)[0]
+      if (doppelganger.doppelgangerRole) {
+        this.broadcastService.sendMessage({
+          type: BroadcastType.Doppelganger,
+          role: doppelganger.doppelgangerRole.name,
+        });
+      }
+    }
   }
 
   sleepRole(roleName) {
@@ -288,16 +304,13 @@ export class AdminPage {
     });
   }
 
-  saveTurn(roleName, selected: { user1?: string; user2?: string }) {
+  saveTurn(roleName, selected: { user1?: string; user2?: string }, isDoppelganger?: boolean) {
     const firstUserName = selected.user1;
     const firstUser = findUser(this.postNightUsers, firstUserName);
-    const firstUserText = firstUserName + ' ' + firstUser.role.name;
     const secondUserName = selected.user2;
     const role = this.allRolesHash[roleName];
-
-    //const secondUser = secondUserName ? findUser(this.users, firstUserName) : undefined
-
     role.actionPerformed = true;
+
     if (role.singleAction) {
       role.singleActionPerformed = true;
     }
@@ -306,24 +319,45 @@ export class AdminPage {
       case RoleType.Altruist:
         if (!isUserAlive(this.postNightUsers, firstUserName)) {
           addLife(this.postNightUsers, firstUserName);
+          if (isDoppelganger) {
+            this.doppelgangerAction = 'Resurrected ' + firstUserName;
+          } else {
+            this.altruistResurrected = firstUserName;
+          }
         }
         break;
       case RoleType.GuardianAngel:
         addLife(this.postNightUsers, firstUserName);
-        this.guardianAngelSaved = firstUserText;
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Gave extra life too' + firstUserName;
+        } else {
+          this.guardianAngelSaved = firstUserName;
+        }
         break;
       case RoleType.Doctor:
         addLife(this.postNightUsers, firstUserName);
-        this.doctorSaved = firstUserText;
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Saved' + firstUserName;
+        } else {
+          this.doctorSaved = firstUserName;
+        }
         break;
 
       case RoleType.Mafia:
         removeLife(this.postNightUsers, firstUserName, roleName);
-        this.mafiaKilled = firstUserText;
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Killed' + firstUserName;
+        } else {
+          this.mafiaKilled = firstUserName;
+        }
         break;
       case RoleType.Sniper:
         removeLife(this.postNightUsers, firstUserName, roleName);
-        this.sniperShot = firstUserText;
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Shot' + firstUserName;
+        } else {
+          this.sniperShot = firstUserName;
+        }
         break;
 
       case RoleType.Detective:
@@ -349,24 +383,75 @@ export class AdminPage {
         break;
 
       case RoleType.Cupid:
-        this.cupidConnected.push(firstUserName);
-        this.cupidConnected.push(secondUserName);
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Made fall in love' + firstUserName;
+          this.cupidConnected.push(firstUserName);
+        } else {
+          this.cupidConnected.push(firstUserName);
+          this.cupidConnected.push(secondUserName);
+        }
         break;
 
       case RoleType.Gambler:
-        this.gamblerBet = firstUserText;
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Bet on ' + firstUserName;
+        } else {
+          this.gamblerBet = firstUserName;
+        }
         break;
 
       case RoleType.Doppelganger:
-        this.doppelgangerRole = firstUser.role;
-        this.broadcastService.sendMessage({
-          type: BroadcastType.Doppelganger,
-          role: firstUser.role.name,
-        });
+        this.doppelgangerTurn(firstUserName, secondUserName)
         break;
 
       case RoleType.TaxiDriver:
-        this.taxiDriverBlocks = firstUserText;
+        this.taxiDriverTurn(firstUserName)
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Stopped ' + firstUserName;
+        } else {
+          this.taxiDriverBlocks = firstUserName;
+        }
+        if (role.singleAction) {
+          role.singleActionPerformed = false;
+        }
+        break;
+    }
+  }
+
+  doppelgangerTurn(firstUserName: string, secondUserName: string) {
+    const user = getUsersWithRole(this.postNightUsers, RoleType.Doppelganger)[0]
+    if (!user.doppelgangerRole) {
+      user.doppelgangerRole = findUser(this.postNightUsers, firstUserName).role
+      this.doppelgangerRole = user.doppelgangerRole
+      this.broadcastService.sendMessage({
+        type: BroadcastType.Doppelganger,
+        role: user.doppelgangerRole.name,
+      });
+    } else {
+      this.saveTurn(user.doppelgangerRole.name, {user1: firstUserName, user2: secondUserName}, true)
+    }
+  }
+
+  taxiDriverTurn(firstUserName: string) {
+    const stoppedUser = findUser(this.postNightUsers, firstUserName)
+    let roleName = stoppedUser.role.name
+    if (roleName === RoleType.Doppelganger) {
+      roleName = stoppedUser.doppelgangerRole.name
+    }
+
+    switch (roleName) {
+      case RoleType.Mafia:
+      case RoleType.Sniper:
+        addLife(this.postNightUsers, firstUserName)
+        break;
+
+      case RoleType.Doctor:
+      case RoleType.Altruist:
+        removeLife(this.postNightUsers, firstUserName);
+        break;
+
+      case RoleType.Cupid:
+        this.cupidConnected = []
         break;
     }
   }
@@ -387,9 +472,9 @@ export class AdminPage {
     const mafiaCurrentlyAlive = getLivingMafiaNo(this.postNightUsers);
     if (mafiaCurrentlyAlive < this.mafiaAlive) {
       // A mafia has died somehow, roll to see if action completed
+      // Out of scope
     }
 
-    // Check if cupid couple are alive
 
     // Cupid logic
     if (!_.isEmpty(this.cupidConnected)) {
@@ -401,17 +486,31 @@ export class AdminPage {
       const cupid1PreUser = findUser(this.users, cupid1);
 
       if (cupid0User.lives < cupid0PreUser.lives) {
-        removeLife(this.postNightUsers, cupid1);
+        removeLifeFromUser(cupid1User);
       } else if (cupid1User.lives < cupid1PreUser.lives) {
-        removeLife(this.postNightUsers, cupid0);
+        removeLifeFromUser(cupid0User);
+      }
+    }
+
+    // Check if gambler is alive
+    if (this.gamblerBet) {
+      const gamblerUser = findUser(this.postNightUsers, this.gamblerBet)
+      if (gamblerUser.lives < 1) {
+        const gambler = getUsersWithRole(this.postNightUsers, RoleType.Gambler) 
+        removeLifeFromUser(gambler[0])
+        this.gamblerAlive = gambler[0].lives > 1
+        this.gamblerName = gambler[0].name
+        this.gamblerBet = undefined
       }
     }
 
     // If doctor saves someone then they gain extra life, this isnt what we want
-
-    // Check if gambler is alive
-
-    // Check if we need to wake the doppelganger up again
+    if (this.doctorSaved) {
+      const doctorUser = findUser(this.postNightUsers, this.doctorSaved)
+      if (doctorUser.lives > 1) {
+        removeLifeFromUser(doctorUser)
+      }
+    }
 
     this.users = _.cloneDeep(this.postNightUsers);
     this.gameState = GameState.Story;
@@ -455,22 +554,25 @@ export class AdminPage {
 
   voteOut() {
     this.gameState = GameState.TrialComplete;
-    const votedOutUser = findUser(this.users, this.votedUser);
-    this.broadcastService.sendMessage({
-      type: BroadcastType.Text,
-      text: this.votedUser + ' has been fount GUILTY 😬😬😬',
-    });
 
-    removeLife(this.users, this.votedUser);
-
-    // If tanner is voted out they win
-    if (votedOutUser.role.name === RoleType.Tanner) {
+    if (this.votedUser) {
+      const votedOutUser = findUser(this.users, this.votedUser);
       this.broadcastService.sendMessage({
-        type: BroadcastType.Victory,
-        role: RoleType.Tanner,
+        type: BroadcastType.Text,
+        text: this.votedUser + ' has been fount GUILTY 😬😬😬',
       });
-      this.gameState = GameState.Setup;
-      return;
+
+      removeLifeFromUser(votedOutUser);
+
+      // If tanner is voted out they win
+      if (votedOutUser.role.name === RoleType.Tanner) {
+        this.broadcastService.sendMessage({
+          type: BroadcastType.Victory,
+          role: RoleType.Tanner,
+        });
+        this.gameState = GameState.Setup;
+        return;
+      }
     }
 
     const winCond = this.checkWinCondition();

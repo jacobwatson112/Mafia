@@ -11,6 +11,7 @@
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "dead",
       "cards": [
         {
           "name": "♥A",
@@ -30,6 +31,7 @@
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "dead",
       "cards": [
         {
           "name": "♦K",
@@ -49,6 +51,7 @@
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": true,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♥J",
@@ -68,6 +71,7 @@
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♣K",
@@ -87,6 +91,7 @@
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♥Q",
@@ -106,6 +111,7 @@
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "all",
       "cards": [
         {
           "name": "Joker",
@@ -125,6 +131,7 @@
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♥8",
@@ -144,6 +151,7 @@
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♦J",
@@ -163,6 +171,7 @@
       "singleAction": true,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "all",
       "cards": [
         {
           "name": "♦10",
@@ -182,6 +191,7 @@
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♠2",
@@ -216,6 +226,7 @@
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♠A",
@@ -235,6 +246,7 @@
       "singleAction": true,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♥6",
@@ -259,6 +271,7 @@
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♦A",
@@ -278,6 +291,7 @@
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♦9",
@@ -297,6 +311,7 @@
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♠10",
@@ -316,6 +331,7 @@
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♦5",
@@ -335,6 +351,7 @@
       "singleAction": true,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♥7",
@@ -354,6 +371,7 @@
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
+      "roleUserType": "living",
       "cards": [
         {
           "name": "♥2",

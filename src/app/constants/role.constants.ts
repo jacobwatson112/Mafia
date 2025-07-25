@@ -24,3 +24,9 @@ export enum RoleColor {
     red = 'red',
     purple = 'purple',
 }
+
+export enum RoleUserType {
+    All = 'all',
+    Living = 'living',
+    Dead = 'dead'
+}

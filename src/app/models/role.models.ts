@@ -1,4 +1,4 @@
-import { RoleColor, RoleType } from "../constants/role.constants";
+import { RoleColor, RoleType, RoleUserType } from "../constants/role.constants";
 
 export interface Role extends Record<string, any> {
     name: RoleType;
@@ -15,6 +15,7 @@ export interface Role extends Record<string, any> {
     actionPerformed: boolean;
     saveAction: boolean;
     requiresTwoUsers: boolean;
+    roleUserType: RoleUserType;
     cards: Card[],
 }
 
