@@ -126,14 +126,6 @@ export class AdminPage {
     this.calculateTotalRoles();
   }
 
-  onSendTestClick() {
-    this.broadcastService.sendMessage({ type: BroadcastType.Test });
-  }
-
-  onSendShuffleClick() {
-    this.broadcastService.sendMessage({ type: BroadcastType.Shuffle });
-  }
-
   onClearScreen() {
     this.broadcastService.sendMessage({ type: BroadcastType.Clear });
   }
