@@ -1,6 +1,15 @@
 # Mafia
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.1.
+Mafia Game
+
+## Requirements
+
+```bash
+Angular CLI: 20.1.1
+Node: 22.17.1
+Package Manager: npm 10.9.2
+npm i
+```
 
 ## Development server
 
@@ -11,6 +20,7 @@ ng serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Navigate to `http://localhost:4200/display` to view the output display.s
 
 ## Code scaffolding
 

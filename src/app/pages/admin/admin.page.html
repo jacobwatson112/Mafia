@@ -5,6 +5,10 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <comp-system-control>
+
+  </comp-system-control>
+
   <ion-grid>
     <ion-row>
       <ion-col>
@@ -14,16 +18,6 @@
         {{ error }}
       </ion-col>
     </ion-row>
-    <ion-row>
-      <ion-col>
-        <ion-button (click)="onSendTestClick()">Display Test</ion-button>
-        <ion-button (click)="onSendShuffleClick()">Display Roles</ion-button>
-        <ion-button (click)="onClearScreen()" color="danger"
-          >Clear Display</ion-button
-        >
-      </ion-col>
-    </ion-row>
-    <hr />
   </ion-grid>
 
   <div *ngIf="gameState === 'Setup'">
@@ -32,31 +26,18 @@
         <ion-col> Player Count: {{ totalUsers }} </ion-col>
         <ion-col> Role Count: {{ totalRoles }} </ion-col>
         <ion-col size="2">
-          <ion-input
-            label="Mafia:"
-            type="number"
-            placeholder="1"
-            [ngModel]="mafiaNo"
-            (ngModelChange)="onChangePlayerNo($event, 'Mafia')"
-          ></ion-input>
+          <ion-input label="Mafia:" type="number" placeholder="1" [ngModel]="mafiaNo"
+            (ngModelChange)="onChangePlayerNo($event, 'Mafia')"></ion-input>
         </ion-col>
         <ion-col size="2">
-          <ion-input
-            label="Villagers:"
-            type="number"
-            placeholder="1"
-            [ngModel]="villagerNo"
-            (ngModelChange)="onChangePlayerNo($event, 'Villager')"
-          ></ion-input>
+          <ion-input label="Villagers:" type="number" placeholder="1" [ngModel]="villagerNo"
+            (ngModelChange)="onChangePlayerNo($event, 'Villager')"></ion-input>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-chip
-            *ngFor="let role of allRolesArray"
-            (click)="roleClick(role.name)"
-            [color]="role.players > 0 ? 'success' : 'danger'"
-          >
+          <ion-chip *ngFor="let role of allRolesArray" (click)="roleClick(role.name)"
+            [color]="role.players > 0 ? 'success' : 'danger'">
             {{ role.name }}
           </ion-chip>
         </ion-col>
@@ -69,9 +50,7 @@
               {{ user.name }}
             </ion-col>
             <ion-col>
-              <ion-button (click)="deleteUser(user.name)" color="danger"
-                >Remove Player</ion-button
-              >
+              <ion-button (click)="deleteUser(user.name)" color="danger">Remove Player</ion-button>
             </ion-col>
           </ion-row>
           <ion-row>
@@ -79,9 +58,7 @@
               <ion-input [(ngModel)]="newUserName" label="Name"></ion-input>
             </ion-col>
             <ion-col>
-              <ion-button (click)="addUser()" color="success"
-                >Add Player</ion-button
-              >
+              <ion-button (click)="addUser()" color="success">Add Player</ion-button>
             </ion-col>
           </ion-row>
         </ion-col>
@@ -94,9 +71,7 @@
 
       <ion-row>
         <ion-col>
-          <ion-button (click)="onStartClick()" color="success"
-            >Start Game</ion-button
-          >
+          <ion-button (click)="onStartClick()" color="success">Start Game</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -109,19 +84,14 @@
           <ion-row>
             {{ user.name }}
           </ion-row>
-          <ion-row
-            style="font-size: 100px"
-            [ngStyle]="{ color: user.card.color }"
-          >
+          <ion-row style="font-size: 100px" [ngStyle]="{ color: user.card.color }">
             {{ user.card.char }}
           </ion-row>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-button (click)="onRolesSet()" color="success"
-            >Finished</ion-button
-          >
+          <ion-button (click)="onRolesSet()" color="success">Finished</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -144,35 +114,26 @@
               <p style="color: purple">{{ role.adminInfo }}</p>
             </ion-col>
             <ion-col *ngIf="!role.isAwake" size="2">
-              <ion-button
-                [disabled]="roleIsAwake"
-                (click)="wakeRole(role.name)"
-                [color]="role.hasWokenUp ? 'danger' : 'secondary'"
-                >Wake Doppelganger - {{ doppelgangerRole.name }}</ion-button
-              >
+              <ion-button [disabled]="roleIsAwake" (click)="wakeRole(role.name)"
+                [color]="role.hasWokenUp ? 'danger' : 'secondary'">Wake Doppelganger - {{ doppelgangerRole.name
+                }}</ion-button>
             </ion-col>
             <ion-col *ngIf="role.isAwake">
-              <ion-button (click)="sleepRole(role.name)" color="warning"
-                >Sleep</ion-button
-              >
+              <ion-button (click)="sleepRole(role.name)" color="warning">Sleep</ion-button>
             </ion-col>
             <ion-col *ngIf="role.isAwake">
-              <select
-                [(ngModel)]="selectedUsers[role.name].user1"
-                name="{{ role.name }}_user1"
-              >
+              <select [(ngModel)]="selectedUsers[role.name].user1" name="{{ role.name }}_user1">
                 <ng-container *ngFor="let user of users">
-                  <option *ngIf="(user.lives > 0 && doppelgangerRole.roleUserType === 'living') || (user.lives < 1 && doppelgangerRole.roleUserType === 'dead') || doppelgangerRole.roleUserType === 'all'" [value]="user.name">
+                  <option
+                    *ngIf="(user.lives > 0 && doppelgangerRole.roleUserType === 'living') || (user.lives < 1 && doppelgangerRole.roleUserType === 'dead') || doppelgangerRole.roleUserType === 'all'"
+                    [value]="user.name">
                     {{ user.name }}
                   </option>
                 </ng-container>
               </select>
 
-              <select
-                *ngIf="doppelgangerRole.requiresTwoUsers"
-                [(ngModel)]="selectedUsers[role.name].user2"
-                name="{{ role.name }}_user2"
-              >
+              <select *ngIf="doppelgangerRole.requiresTwoUsers" [(ngModel)]="selectedUsers[role.name].user2"
+                name="{{ role.name }}_user2">
                 <ng-container *ngFor="let user of users">
                   <option *ngIf="(user.lives > 0 && doppelgangerRole.roleUserType === 'living')" [value]="user.name">
                     {{ user.name }}
@@ -180,10 +141,7 @@
                 </ng-container>
               </select>
 
-              <ion-button
-                (click)="saveTurn(role.name, selectedUsers[role.name])"
-                color="success"
-              >
+              <ion-button (click)="saveTurn(role.name, selectedUsers[role.name])" color="success">
                 Save
               </ion-button>
               <span *ngIf="role.actionPerformed">✅</span>
@@ -197,35 +155,25 @@
               <p style="color: purple">{{ role.adminInfo }}</p>
             </ion-col>
             <ion-col *ngIf="!role.isAwake" size="2">
-              <ion-button
-                [disabled]="roleIsAwake"
-                (click)="wakeRole(role.name)"
-                [color]="role.hasWokenUp ? 'danger' : 'secondary'"
-                >Wake {{ role.name }}</ion-button
-              >
+              <ion-button [disabled]="roleIsAwake" (click)="wakeRole(role.name)"
+                [color]="role.hasWokenUp ? 'danger' : 'secondary'">Wake {{ role.name }}</ion-button>
             </ion-col>
             <ion-col *ngIf="role.isAwake">
-              <ion-button (click)="sleepRole(role.name)" color="warning"
-                >Sleep</ion-button
-              >
+              <ion-button (click)="sleepRole(role.name)" color="warning">Sleep</ion-button>
             </ion-col>
             <ion-col *ngIf="role.isAwake">
-              <select
-                [(ngModel)]="selectedUsers[role.name].user1"
-                name="{{ role.name }}_user1"
-              >
+              <select [(ngModel)]="selectedUsers[role.name].user1" name="{{ role.name }}_user1">
                 <ng-container *ngFor="let user of users">
-                  <option *ngIf="(user.lives > 0 && role.roleUserType === 'living') || (user.lives < 1 && role.roleUserType === 'dead') || role.roleUserType === 'all'" [value]="user.name">
+                  <option
+                    *ngIf="(user.lives > 0 && role.roleUserType === 'living') || (user.lives < 1 && role.roleUserType === 'dead') || role.roleUserType === 'all'"
+                    [value]="user.name">
                     {{ user.name }}
                   </option>
                 </ng-container>
               </select>
 
-              <select
-                *ngIf="role.requiresTwoUsers"
-                [(ngModel)]="selectedUsers[role.name].user2"
-                name="{{ role.name }}_user2"
-              >
+              <select *ngIf="role.requiresTwoUsers" [(ngModel)]="selectedUsers[role.name].user2"
+                name="{{ role.name }}_user2">
                 <ng-container *ngFor="let user of users">
                   <option *ngIf="(user.lives > 0 && role.roleUserType === 'living')" [value]="user.name">
                     {{ user.name }}
@@ -233,10 +181,7 @@
                 </ng-container>
               </select>
 
-              <ion-button
-                (click)="saveTurn(role.name, selectedUsers[role.name])"
-                color="success"
-              >
+              <ion-button (click)="saveTurn(role.name, selectedUsers[role.name])" color="success">
                 Save
               </ion-button>
               <span *ngIf="role.actionPerformed">✅</span>
@@ -246,28 +191,12 @@
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-button (click)="calculateResult()" color="success"
-            >Complete Night</ion-button
-          >
+          <ion-button (click)="calculateResult()" color="success">Complete Night</ion-button>
         </ion-col>
       </ion-row>
-      <ion-row>
-        <ion-col *ngFor="let user of users">
-          <ion-row>
-            {{ user.name }}
-          </ion-row>
-          <ion-row
-            style="font-size: 100px"
-            [ngStyle]="{ color: user.card.color }"
-          >
-            {{ user.card.char }}
-          </ion-row>
-          <ion-row>
-            {{ user.role.name }}
-            <span *ngIf="user.lives < 1"> ❌ </span>
-          </ion-row>
-        </ion-col>
-      </ion-row>
+
+      <comp-user-playing-card [users]="users">
+      </comp-user-playing-card>
     </ion-grid>
   </div>
 
@@ -288,9 +217,7 @@
       <p *ngIf="!gamblerAlive">Gambler {{gamblerName}} died</p>
       <ion-row>
         <ion-col>
-          <ion-button (click)="beginTrial()" color="success"
-            >Continue to Trial</ion-button
-          >
+          <ion-button (click)="beginTrial()" color="success">Continue to Trial</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -309,10 +236,7 @@
             {{ mayorUser.name }} is the Mayor, they get two votes and will tie
             break
           </ion-row>
-          <ion-row
-            style="font-size: 100px"
-            [ngStyle]="{ color: mayorUser.card.color }"
-          >
+          <ion-row style="font-size: 100px" [ngStyle]="{ color: mayorUser.card.color }">
             {{ mayorUser.card.char }}
           </ion-row>
           <ion-row>
@@ -345,9 +269,7 @@
       </ion-row>
       <ion-row>
         <ion-col>
-          <ion-button (click)="nextRound()" color="success"
-            >Begin rount {{ round + 1 }}</ion-button
-          >
+          <ion-button (click)="nextRound()" color="success">Begin rount {{ round + 1 }}</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>

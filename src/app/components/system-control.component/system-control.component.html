@@ -1,0 +1,22 @@
+<ion-grid>
+  <ion-row>
+    <ion-col>
+      <h1>System Controls</h1>
+      <ion-button (click)="onSendShuffleClick()">Display Roles</ion-button>
+      <span style="float: right;">
+        <ion-button (click)="onClearScreen()" color="danger">Clear Display</ion-button>
+        <ion-button (click)="onExpandButtonClick()">
+          <span *ngIf="expand">▲</span>
+          <span *ngIf="!expand">▼</span>
+        </ion-button>
+      </span>
+    </ion-col>
+  </ion-row>
+  <div *ngIf="expand">
+    <ion-row>
+      <ion-col>
+        <ion-button (click)="onSendTestClick()">Display Test</ion-button>
+      </ion-col>
+    </ion-row>
+  </div>
+</ion-grid>

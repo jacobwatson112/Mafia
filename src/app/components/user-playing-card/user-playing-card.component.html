@@ -1,0 +1,14 @@
+<ion-row>
+    <ion-col *ngFor="let user of users">
+        <ion-row>
+            {{ user.name }}
+        </ion-row>
+        <ion-row style="font-size: 100px" [ngStyle]="{ color: user.card.color }">
+            {{ user.card.char }}
+        </ion-row>
+        <ion-row>
+            {{ user.role.name }}
+            <span *ngIf="user.lives < 1"> ❌ </span>
+        </ion-row>
+    </ion-col>
+</ion-row>
