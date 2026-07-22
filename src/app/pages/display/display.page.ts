@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { BroadcastService } from '../../services/broadcast.service';
 import { BroadcastType } from '../../constants/broadcast.constants';
 import { RoleType } from '../../constants/role.constants';
 import { getAllRoles, getRole } from '../../helper/roles.helper';
-import { Role } from '../../models/role.models';
-import _ from 'lodash'
+import { RoleDefinition } from '../../models/role.models';
 
 @Component({
   selector: 'app-display',
@@ -12,62 +12,60 @@ import _ from 'lodash'
   styleUrls: ['./display.page.scss'],
   standalone: false,
 })
-export class DisplayPage implements OnInit {
-
-  messageType: BroadcastType
-  role: Role
-  allRoles: Role[]
-  intervalId: any;
+export class DisplayPage implements OnInit, OnDestroy {
+  messageType?: BroadcastType;
+  role?: RoleDefinition;
+  allRoles: RoleDefinition[] = [];
+  intervalId?: ReturnType<typeof setInterval>;
   currentRoleIndex = 0;
-  displayText: string;
-  winningRole: string
+  displayText?: string;
+  winningRole?: RoleType;
+
+  private messageSub?: Subscription;
 
   constructor(
     private broadcastService: BroadcastService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
-  ) { }
+  ) {}
 
   ionViewWillEnter() {
-    this.allRoles = getAllRoles()
+    this.allRoles = getAllRoles();
   }
 
   ngOnInit() {
-    this.broadcastService.message$.subscribe((msg) => {
-      this.messageType = msg.type
-      if (this.intervalId) {
-        clearInterval(this.intervalId);
-      }
+    this.messageSub = this.broadcastService.message$.subscribe((msg) => {
+      this.messageType = msg.type;
+      this.clearRoleCycle();
 
-      switch (this.messageType) {
+      switch (msg.type) {
         case BroadcastType.Role:
-          this.displayRole(msg.role)
+          this.displayRole(msg.role);
           break;
 
         case BroadcastType.Clear:
-          this.role = undefined
-          this.displayText = undefined
-          this.winningRole = undefined
+          this.role = undefined;
+          this.displayText = undefined;
+          this.winningRole = undefined;
           break;
 
         case BroadcastType.Text:
-          this.displayText = msg.text
+          this.displayText = msg.text;
           break;
 
         case BroadcastType.Shuffle:
-          this.startRoleCycle()
+          this.startRoleCycle();
           break;
 
         case BroadcastType.Test:
-          //
           break;
 
         case BroadcastType.Doppelganger:
-          this.displayDoppelgangerRole(msg.role)
+          this.displayDoppelgangerRole(msg.role);
           break;
 
         case BroadcastType.Victory:
-          this.winningRole = msg.role
+          this.winningRole = msg.role;
           break;
       }
 
@@ -75,35 +73,53 @@ export class DisplayPage implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.clearRoleCycle();
+    this.messageSub?.unsubscribe();
+  }
+
   displayRole(roleName: RoleType) {
-    this.role = getRole(roleName)
+    this.role = getRole(roleName);
   }
 
   displayDoppelgangerRole(roleName: RoleType) {
-    const doppelgangerRole = getRole(RoleType.Doppelganger)
-    this.role = getRole(roleName)
-    this.role.cards = doppelgangerRole.cards
+    const doppelgangerRole = getRole(RoleType.Doppelganger);
+    const role = getRole(roleName);
+
+    if (!doppelgangerRole || !role) {
+      return;
+    }
+
+    this.role = role;
+    this.role.cards = doppelgangerRole.cards;
   }
 
   startRoleCycle() {
-    if (!this.allRoles || this.allRoles.length === 0) {
+    if (!this.allRoles.length) {
       this.allRoles = getAllRoles();
+    }
+    if (!this.allRoles.length) {
+      return;
     }
 
     this.currentRoleIndex = 0;
     this.role = this.allRoles[this.currentRoleIndex];
 
-    // Run interval *outside* Angular to avoid triggering change detection too often
     this.ngZone.runOutsideAngular(() => {
       this.intervalId = setInterval(() => {
         this.currentRoleIndex = (this.currentRoleIndex + 1) % this.allRoles.length;
 
-        // Re-enter Angular zone to update UI safely
         this.ngZone.run(() => {
           this.role = this.allRoles[this.currentRoleIndex];
-          // No need to call detectChanges() explicitly here!
         });
       }, 5000);
     });
+  }
+
+  private clearRoleCycle() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = undefined;
+    }
   }
 }

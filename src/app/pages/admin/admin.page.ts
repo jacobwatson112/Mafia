@@ -3,8 +3,8 @@ import { BroadcastService } from '../../services/broadcast.service';
 import { BroadcastType } from '../../constants/broadcast.constants';
 import { RoleType } from '../../constants/role.constants';
 import { GameState } from '../../constants/game.constants';
-import { Card, Role } from '../../models/role.models';
-import { getAllRoles, getAllRolesHash } from '../../helper/roles.helper';
+import { Card, RoleDefinition, RoleDefinitionMap } from '../../models/role.models';
+import { getAllRolesHash } from '../../helper/roles.helper';
 import { User } from '../../models/user.models';
 import { getAllUsers } from '../../helper/user.helper';
 import {
@@ -19,7 +19,46 @@ import {
   removeLifeFromUser,
   shuffle
 } from '../../helper/game.helper';
-import _, { find } from 'lodash';
+import _ from 'lodash';
+
+type PlayerName = string;
+
+interface NightSummaryState {
+  altruistResurrected?: PlayerName;
+  doctorSaved?: PlayerName;
+  mafiaKilled?: PlayerName;
+  sniperShot?: PlayerName;
+  cupidConnected: PlayerName[];
+  gamblerBet?: PlayerName;
+  gamblerAlive: boolean;
+  gamblerName?: PlayerName;
+  guardianAngelSaved?: PlayerName;
+  doppelgangerRole?: RoleDefinition;
+  doppelgangerAction?: string;
+  taxiDriverBlocks?: PlayerName;
+}
+
+interface TrialState {
+  mayorUser?: User;
+  votedUser?: PlayerName;
+}
+
+interface AdminUiState {
+  night: NightSummaryState;
+  trial: TrialState;
+}
+
+const createInitialNightSummaryState = (): NightSummaryState => ({
+  cupidConnected: [],
+  gamblerAlive: true,
+});
+
+const createInitialTrialState = (): TrialState => ({});
+
+const createInitialAdminUiState = (): AdminUiState => ({
+  night: createInitialNightSummaryState(),
+  trial: createInitialTrialState(),
+});
 
 @Component({
   selector: 'app-admin',
@@ -31,7 +70,7 @@ export class AdminPage {
   gameState: GameState = GameState.Setup;
   error: string;
 
-  allRolesHash: Role[];
+  allRolesHash: RoleDefinitionMap;
   users: User[];
   postNightUsers: User[];
 
@@ -56,21 +95,153 @@ export class AdminPage {
 
   mafiaAlive: number;
 
-  altruistResurrected: string
-  doctorSaved: string;
-  mafiaKilled: string;
-  sniperShot: string;
-  cupidConnected: string[];
-  gamblerBet: string;
-  gamblerAlive: boolean;
-  gamblerName: string;
-  guardianAngelSaved: string;
-  doppelgangerRole: Role;
-  doppelgangerAction: string;
-  taxiDriverBlocks: string;
+  uiState: AdminUiState = createInitialAdminUiState();
 
-  mayorUser: User;
-  votedUser: string;
+  get altruistResurrected() {
+    return this.uiState.night.altruistResurrected;
+  }
+  set altruistResurrected(value: string | undefined) {
+    this.uiState.night.altruistResurrected = value;
+  }
+
+  get doctorSaved() {
+    return this.uiState.night.doctorSaved;
+  }
+  set doctorSaved(value: string | undefined) {
+    this.uiState.night.doctorSaved = value;
+  }
+
+  get mafiaKilled() {
+    return this.uiState.night.mafiaKilled;
+  }
+  set mafiaKilled(value: string | undefined) {
+    this.uiState.night.mafiaKilled = value;
+  }
+
+  get sniperShot() {
+    return this.uiState.night.sniperShot;
+  }
+  set sniperShot(value: string | undefined) {
+    this.uiState.night.sniperShot = value;
+  }
+
+  get cupidConnected() {
+    return this.uiState.night.cupidConnected;
+  }
+  set cupidConnected(value: string[]) {
+    this.uiState.night.cupidConnected = value;
+  }
+
+  get gamblerBet() {
+    return this.uiState.night.gamblerBet;
+  }
+  set gamblerBet(value: string | undefined) {
+    this.uiState.night.gamblerBet = value;
+  }
+
+  get gamblerAlive() {
+    return this.uiState.night.gamblerAlive;
+  }
+  set gamblerAlive(value: boolean) {
+    this.uiState.night.gamblerAlive = value;
+  }
+
+  get gamblerName() {
+    return this.uiState.night.gamblerName;
+  }
+  set gamblerName(value: string | undefined) {
+    this.uiState.night.gamblerName = value;
+  }
+
+  get guardianAngelSaved() {
+    return this.uiState.night.guardianAngelSaved;
+  }
+  set guardianAngelSaved(value: string | undefined) {
+    this.uiState.night.guardianAngelSaved = value;
+  }
+
+  get doppelgangerRole() {
+    return this.uiState.night.doppelgangerRole;
+  }
+  set doppelgangerRole(value: RoleDefinition | undefined) {
+    this.uiState.night.doppelgangerRole = value;
+  }
+
+  get doppelgangerAction() {
+    return this.uiState.night.doppelgangerAction;
+  }
+  set doppelgangerAction(value: string | undefined) {
+    this.uiState.night.doppelgangerAction = value;
+  }
+
+  get taxiDriverBlocks() {
+    return this.uiState.night.taxiDriverBlocks;
+  }
+  set taxiDriverBlocks(value: string | undefined) {
+    this.uiState.night.taxiDriverBlocks = value;
+  }
+
+  get mayorUser() {
+    return this.uiState.trial.mayorUser;
+  }
+  set mayorUser(value: User | undefined) {
+    this.uiState.trial.mayorUser = value;
+  }
+
+  get votedUser() {
+    return this.uiState.trial.votedUser;
+  }
+  set votedUser(value: string | undefined) {
+    this.uiState.trial.votedUser = value;
+  }
+
+  private resetNightSummaryState() {
+    this.uiState.night = createInitialNightSummaryState();
+  }
+
+  private resetTrialState() {
+    this.uiState.trial = createInitialTrialState();
+  }
+
+  roleState: Partial<Record<RoleType, {
+    isAwake: boolean;
+    hasWokenUp: boolean;
+    actionPerformed: boolean;
+    singleActionPerformed: boolean;
+  }>> = {};
+
+  private roleCanWakeThisNight(roleName: RoleType): boolean {
+    const role = this.allRolesHash[roleName];
+    if (!role || role.players < 1 || !role.wakeUp) return false;
+
+    const runtime = this.roleState[roleName];
+    if (runtime?.singleActionPerformed) return false;
+
+    const nightRule = role.nightRule ?? { kind: 'every-night' as const };
+
+    switch (nightRule.kind) {
+      case 'every-night':
+        return true;
+      case 'first-night-only':
+        return this.round === 1;
+      case 'night-list':
+        return nightRule.nights.includes(this.round);
+      default:
+        return true;
+    }
+  }
+
+  private initRoleRuntimeState() {
+    this.roleState = {};
+    for (const role of Object.values(this.allRolesHash)) {
+      this.roleState[role.name] = {
+        isAwake: false,
+        hasWokenUp: false,
+        actionPerformed: false,
+        singleActionPerformed: false,
+      };
+    }
+  }
 
   get allRolesArray() {
     if (this.allRolesHash) {
@@ -115,8 +286,11 @@ export class AdminPage {
     this.resetGameState();
   }
 
+
+
   resetGameState() {
     this.gameState = GameState.Setup;
+    this.uiState = createInitialAdminUiState();
 
     for (let user of this.users) {
       user.role = undefined;
@@ -210,8 +384,8 @@ export class AdminPage {
     this.assignRolesAndCards(this.users, allRoles);
   }
 
-  assignRolesAndCards(users: User[], allRoles: Role[]) {
-    const assignments: { role: Role; card: Card }[] = [];
+  assignRolesAndCards(users: User[], allRoles: RoleDefinition[]) {
+    const assignments: { role: RoleDefinition; card: Card }[] = [];
 
     for (const role of allRoles) {
       for (let i = 0; i < role.players; i++) {
@@ -251,10 +425,7 @@ export class AdminPage {
     this.roleIsAwake = false;
     this.mafiaAlive = getLivingMafiaNo(this.users);
 
-    this.cupidConnected = [];
-    this.sniperShot = undefined;
-    this.gamblerAlive = true;
-    this.altruistResurrected = undefined;
+    this.resetNightSummaryState();
 
     for (let key in this.allRolesHash) {
       const role = this.allRolesHash[key];
@@ -454,7 +625,7 @@ export class AdminPage {
     // Remove Doppelganger from priority list
     if (this.round === 1) {
       const index = this.priorityRoles.findIndex(
-        (role) => RoleType.Doppelganger
+        (role) => role === RoleType.Doppelganger
       );
       if (index !== -1) {
         this.priorityRoles.splice(index, 1);
@@ -514,13 +685,13 @@ export class AdminPage {
     const winCond = this.checkWinCondition();
     if (winCond) {
       this.gameState = GameState.Setup;
+      return;
     }
 
     this.gameState = GameState.Trial;
+    this.resetTrialState();
     this.votedUser = undefined;
-    // can only be 1 mayor
-    this.mayorUser =
-      getUsersWithRole(this.postNightUsers, RoleType.Mayor)[0] || undefined;
+    this.mayorUser = getUsersWithRole(this.postNightUsers, RoleType.Mayor)[0];
   }
 
   checkWinCondition() {

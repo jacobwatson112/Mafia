@@ -231,7 +231,7 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col *ngIf="mayorUser.lives > 0">
+        <ion-col *ngIf="(mayorUser?.lives ?? 0) > 0">
           <ion-row>
             {{ mayorUser.name }} is the Mayor, they get two votes and will tie
             break
@@ -243,7 +243,7 @@
             {{ mayorUser.role.name }}
           </ion-row>
         </ion-col>
-        <ion-col *ngIf="mayorUser.lives < 1"> Mayor is dead </ion-col>
+        <ion-col *ngIf="(mayorUser?.lives ?? 0) < 1"> Mayor is dead </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>

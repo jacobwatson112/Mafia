@@ -17,6 +17,14 @@ export function findUser(users: User[], userName: string): User {
   return undefined;
 }
 
+export function findUserOrThrow(users: User[], userName: string): User {
+  const user = findUser(users, userName);
+  if (!user) {
+    throw new Error(`User not found: ${userName}`);
+  }
+  return user;
+}
+
 export function getUsersWithRole(users: User[], roleName: RoleType): User[] {
   const usersWithRole: User[] = []
   for (let user of users) {
