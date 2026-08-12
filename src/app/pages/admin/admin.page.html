@@ -42,6 +42,15 @@
           </ion-chip>
         </ion-col>
       </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-toggle [(ngModel)]="enableMafiaDoubleKillFromNight3">
+              Mafia double kill from Night 3+
+            </ion-toggle>
+          </ion-item>
+        </ion-col>
+      </ion-row>
 
       <ion-row>
         <ion-col>
@@ -105,7 +114,7 @@
         </ion-col>
       </ion-row>
       <ion-row *ngFor="let role of nightRolesArray">
-        <ion-col *ngIf="role.players > 0 && role.wakeUp">
+        <ion-col *ngIf="roleCanWakeThisNight(role.name)">
           <ion-row class="night-row" *ngIf="role.name === 'Doppelganger' && round !== 1">
             <ion-col size="6">
               <p>Doppelganger - {{ doppelgangerRole.name }}</p>
@@ -113,15 +122,15 @@
               <p>{{ doppelgangerRole.description }}</p>
               <p style="color: purple">{{ role.adminInfo }}</p>
             </ion-col>
-            <ion-col *ngIf="!role.isAwake" size="2">
+            <ion-col *ngIf="!roleState[role.name]?.isAwake" size="2">
               <ion-button [disabled]="roleIsAwake" (click)="wakeRole(role.name)"
-                [color]="role.hasWokenUp ? 'danger' : 'secondary'">Wake Doppelganger - {{ doppelgangerRole.name
+                [color]="roleState[role.name]?.hasWokenUp ? 'danger' : 'secondary'">Wake Doppelganger - {{ doppelgangerRole.name
                 }}</ion-button>
             </ion-col>
-            <ion-col *ngIf="role.isAwake">
+            <ion-col *ngIf="roleState[role.name]?.isAwake">
               <ion-button (click)="sleepRole(role.name)" color="warning">Sleep</ion-button>
             </ion-col>
-            <ion-col *ngIf="role.isAwake">
+            <ion-col *ngIf="roleState[role.name]?.isAwake">
               <select [(ngModel)]="selectedUsers[role.name].user1" name="{{ role.name }}_user1">
                 <ng-container *ngFor="let user of users">
                   <option
@@ -132,7 +141,7 @@
                 </ng-container>
               </select>
 
-              <select *ngIf="doppelgangerRole.requiresTwoUsers" [(ngModel)]="selectedUsers[role.name].user2"
+              <select *ngIf="shouldShowSecondTarget(doppelgangerRole)" [(ngModel)]="selectedUsers[role.name].user2"
                 name="{{ role.name }}_user2">
                 <ng-container *ngFor="let user of users">
                   <option *ngIf="(user.lives > 0 && doppelgangerRole.roleUserType === 'living')" [value]="user.name">
@@ -144,7 +153,7 @@
               <ion-button (click)="saveTurn(role.name, selectedUsers[role.name])" color="success">
                 Save
               </ion-button>
-              <span *ngIf="role.actionPerformed">✅</span>
+              <span *ngIf="roleState[role.name]?.actionPerformed">✅</span>
             </ion-col>
           </ion-row>
           <ion-row class="night-row" *ngIf="(role.name !== 'Doppelganger' || round === 1)">
@@ -154,14 +163,14 @@
               <p>{{ role.description }}</p>
               <p style="color: purple">{{ role.adminInfo }}</p>
             </ion-col>
-            <ion-col *ngIf="!role.isAwake" size="2">
+            <ion-col *ngIf="!roleState[role.name]?.isAwake" size="2">
               <ion-button [disabled]="roleIsAwake" (click)="wakeRole(role.name)"
-                [color]="role.hasWokenUp ? 'danger' : 'secondary'">Wake {{ role.name }}</ion-button>
+                [color]="roleState[role.name]?.hasWokenUp ? 'danger' : 'secondary'">Wake {{ role.name }}</ion-button>
             </ion-col>
-            <ion-col *ngIf="role.isAwake">
+            <ion-col *ngIf="roleState[role.name]?.isAwake">
               <ion-button (click)="sleepRole(role.name)" color="warning">Sleep</ion-button>
             </ion-col>
-            <ion-col *ngIf="role.isAwake">
+            <ion-col *ngIf="roleState[role.name]?.isAwake">
               <select [(ngModel)]="selectedUsers[role.name].user1" name="{{ role.name }}_user1">
                 <ng-container *ngFor="let user of users">
                   <option
@@ -172,7 +181,7 @@
                 </ng-container>
               </select>
 
-              <select *ngIf="role.requiresTwoUsers" [(ngModel)]="selectedUsers[role.name].user2"
+              <select *ngIf="shouldShowSecondTarget(role)" [(ngModel)]="selectedUsers[role.name].user2"
                 name="{{ role.name }}_user2">
                 <ng-container *ngFor="let user of users">
                   <option *ngIf="(user.lives > 0 && role.roleUserType === 'living')" [value]="user.name">
@@ -184,7 +193,7 @@
               <ion-button (click)="saveTurn(role.name, selectedUsers[role.name])" color="success">
                 Save
               </ion-button>
-              <span *ngIf="role.actionPerformed">✅</span>
+              <span *ngIf="roleState[role.name]?.actionPerformed">✅</span>
             </ion-col>
           </ion-row>
         </ion-col>
@@ -207,13 +216,17 @@
           <h2>Round: {{ round }}</h2>
         </ion-col>
       </ion-row>
-      <p>Mafia Killed: {{mafiaKilled}}</p>
+      <p *ngIf="mafiaKilled.length > 0">Mafia Killed: {{ mafiaKilled.join(', ') }}</p>
+      <p *ngIf="mafiaKilled.length === 0">Mafia Killed: Nobody</p>
       <p *ngIf="doctorSaved">Doctor Saved: {{doctorSaved}}</p>
       <p *ngIf="cupidConnected[0]">Cupid coupled: {{cupidConnected[0]}} and {{cupidConnected[1]}}</p>
       <p *ngIf="doppelgangerAction">Doppelganger: {{doppelgangerAction}}</p>
       <p *ngIf="sniperShot">Sniper shot: {{sniperShot}}</p>
       <p *ngIf="altruistResurrected">Altruist Resurrected: {{altruistResurrected}}</p>
       <p *ngIf="taxiDriverBlocks">Taxi Driver: {{taxiDriverBlocks}}</p>
+      <p *ngIf="zorgTarget">Zorg linked: {{zorgTarget}}</p>
+      <p *ngIf="zorgTriggeredSelectors.length > 0">Zorg effect killed selectors: {{ zorgTriggeredSelectors.join(', ') }}</p>
+      <p *ngIf="zorgLinkedDeath">Zorg death pulled down: {{zorgLinkedDeath}}</p>
       <p *ngIf="!gamblerAlive">Gambler {{gamblerName}} died</p>
       <ion-row>
         <ion-col>

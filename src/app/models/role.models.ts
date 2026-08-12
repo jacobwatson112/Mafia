@@ -1,6 +1,7 @@
 import { RoleColor, RoleType, RoleUserType } from '../constants/role.constants';
 
 export type NightRule =
+  | { kind: 'never' }
   | { kind: 'every-night' }
   | { kind: 'first-night-only' }
   | { kind: 'night-list'; nights: number[] };
@@ -17,14 +18,12 @@ export interface RoleDefinition {
   text?: string;
   players: number;
   adminInfo?: string;
-  wakeUp: boolean;
-  firstNightOnly: boolean;
+  wakeRule: NightRule;
   singleAction: boolean;
   saveAction: boolean;
   requiresTwoUsers: boolean;
   roleUserType: RoleUserType;
   cards: Card[];
-  nightRule?: NightRule;
 }
 
 /**

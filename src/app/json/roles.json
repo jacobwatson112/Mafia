@@ -6,8 +6,10 @@
       "text": "You may only do this ONCE per game",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "night-list",
+        "nights": [4]
+      },
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -26,8 +28,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -46,8 +49,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": true,
@@ -66,8 +70,9 @@
       "text": "Note: The Mafia Boss cannot be detected, while the Tanner will be a FALSE POSITIVE",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -86,8 +91,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -106,8 +112,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -126,8 +133,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": true,
+      "wakeRule": {
+        "kind": "first-night-only"
+      },
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -146,8 +154,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": true,
+      "wakeRule": {
+        "kind": "first-night-only"
+      },
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -166,8 +175,9 @@
       "text": "You may only do this ONCE per game",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": true,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -186,8 +196,9 @@
       "text": "Note: Chosen by majority vote",
       "players": 1,
       "adminInfo": "Wake up the Mafia Boss too",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -221,8 +232,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": false,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "never"
+      },
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -241,8 +253,9 @@
       "text": "",
       "players": 2,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": true,
+      "wakeRule": {
+        "kind": "first-night-only"
+      },
       "singleAction": true,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -266,8 +279,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": false,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "never"
+      },
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -286,8 +300,9 @@
       "text": "Note: The doctor cannot save them",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": true,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -306,8 +321,9 @@
       "text": "",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": false,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "never"
+      },
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -326,8 +342,9 @@
       "text": "Note: If a Mafia is selected, they will have a chance to fail their action based on how many other Mafia are present. If the player could only do their action once per game they will be able to do it again on the next night.",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "every-night"
+      },
       "singleAction": false,
       "saveAction": true,
       "requiresTwoUsers": false,
@@ -346,8 +363,9 @@
       "text": "You may only do this ONCE per game",
       "players": 1,
       "adminInfo": "",
-      "wakeUp": true,
-      "firstNightOnly": true,
+      "wakeRule": {
+        "kind": "first-night-only"
+      },
       "singleAction": true,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -366,8 +384,9 @@
       "text": "Note: You literally don't do anything else",
       "players": 0,
       "adminInfo": "",
-      "wakeUp": false,
-      "firstNightOnly": false,
+      "wakeRule": {
+        "kind": "never"
+      },
       "singleAction": false,
       "saveAction": false,
       "requiresTwoUsers": false,
@@ -391,6 +410,27 @@
         {
           "name": "♦3",
           "char": "🃃",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "name": "Zorg",
+      "description": "Feed Pizza",
+      "text": "🍕",
+      "players": 1,
+      "adminInfo": "",
+      "wakeRule": {
+        "kind": "every-night"
+      },
+      "singleAction": false,
+      "saveAction": false,
+      "requiresTwoUsers": false,
+      "roleUserType": "living",
+      "cards": [
+        {
+          "name": "♥10",
+          "char": "🂺",
           "color": "red"
         }
       ]

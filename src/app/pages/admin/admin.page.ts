@@ -3,7 +3,7 @@ import { BroadcastService } from '../../services/broadcast.service';
 import { BroadcastType } from '../../constants/broadcast.constants';
 import { RoleType } from '../../constants/role.constants';
 import { GameState } from '../../constants/game.constants';
-import { Card, RoleDefinition, RoleDefinitionMap } from '../../models/role.models';
+import { Card, RoleDefinition, RoleDefinitionMap, RoleRuntimeStateMap } from '../../models/role.models';
 import { getAllRolesHash } from '../../helper/roles.helper';
 import { User } from '../../models/user.models';
 import { getAllUsers } from '../../helper/user.helper';
@@ -26,7 +26,10 @@ type PlayerName = string;
 interface NightSummaryState {
   altruistResurrected?: PlayerName;
   doctorSaved?: PlayerName;
-  mafiaKilled?: PlayerName;
+  mafiaKilled: PlayerName[];
+  zorgTarget?: PlayerName;
+  zorgTriggeredSelectors: PlayerName[];
+  zorgLinkedDeath?: PlayerName;
   sniperShot?: PlayerName;
   cupidConnected: PlayerName[];
   gamblerBet?: PlayerName;
@@ -49,6 +52,8 @@ interface AdminUiState {
 }
 
 const createInitialNightSummaryState = (): NightSummaryState => ({
+  mafiaKilled: [],
+  zorgTriggeredSelectors: [],
   cupidConnected: [],
   gamblerAlive: true,
 });
@@ -83,6 +88,7 @@ export class AdminPage {
   newUserName: string;
 
   round: number;
+  enableMafiaDoubleKillFromNight3 = false;
   priorityRoles = [
     RoleType.Doppelganger,
     RoleType.Mafia,
@@ -114,7 +120,7 @@ export class AdminPage {
   get mafiaKilled() {
     return this.uiState.night.mafiaKilled;
   }
-  set mafiaKilled(value: string | undefined) {
+  set mafiaKilled(value: string[]) {
     this.uiState.night.mafiaKilled = value;
   }
 
@@ -123,6 +129,27 @@ export class AdminPage {
   }
   set sniperShot(value: string | undefined) {
     this.uiState.night.sniperShot = value;
+  }
+
+  get zorgTarget() {
+    return this.uiState.night.zorgTarget;
+  }
+  set zorgTarget(value: string | undefined) {
+    this.uiState.night.zorgTarget = value;
+  }
+
+  get zorgTriggeredSelectors() {
+    return this.uiState.night.zorgTriggeredSelectors;
+  }
+  set zorgTriggeredSelectors(value: string[]) {
+    this.uiState.night.zorgTriggeredSelectors = value;
+  }
+
+  get zorgLinkedDeath() {
+    return this.uiState.night.zorgLinkedDeath;
+  }
+  set zorgLinkedDeath(value: string | undefined) {
+    this.uiState.night.zorgLinkedDeath = value;
   }
 
   get cupidConnected() {
@@ -203,23 +230,32 @@ export class AdminPage {
     this.uiState.trial = createInitialTrialState();
   }
 
-  roleState: Partial<Record<RoleType, {
-    isAwake: boolean;
-    hasWokenUp: boolean;
-    actionPerformed: boolean;
-    singleActionPerformed: boolean;
-  }>> = {};
+  roleState: RoleRuntimeStateMap = {};
+  private selectedByTarget: Record<string, Set<string>> = {};
 
-  private roleCanWakeThisNight(roleName: RoleType): boolean {
+  isMafiaDoubleKillNight(): boolean {
+    return this.enableMafiaDoubleKillFromNight3 && this.round >= 3;
+  }
+
+  shouldShowSecondTarget(role: RoleDefinition | undefined): boolean {
+    if (!role) {
+      return false;
+    }
+    return role.requiresTwoUsers || (role.name === RoleType.Mafia && this.isMafiaDoubleKillNight());
+  }
+
+  roleCanWakeThisNight(roleName: RoleType): boolean {
     const role = this.allRolesHash[roleName];
-    if (!role || role.players < 1 || !role.wakeUp) return false;
+    if (!role || role.players < 1) return false;
 
     const runtime = this.roleState[roleName];
-    if (runtime?.singleActionPerformed) return false;
+    if (roleName !== RoleType.Zorg && runtime?.singleActionPerformed) return false;
 
-    const nightRule = role.nightRule ?? { kind: 'every-night' as const };
+    const nightRule = role.wakeRule;
 
     switch (nightRule.kind) {
+      case 'never':
+        return false;
       case 'every-night':
         return true;
       case 'first-night-only':
@@ -240,6 +276,82 @@ export class AdminPage {
         actionPerformed: false,
         singleActionPerformed: false,
       };
+    }
+  }
+
+  private getSelectorsForTurn(roleName: RoleType, isDoppelganger?: boolean): string[] {
+    const selectors = isDoppelganger
+      ? getUsersWithRole(this.postNightUsers, RoleType.Doppelganger)
+      : getUsersWithRole(this.postNightUsers, roleName);
+
+    return selectors
+      .map((user) => user.name)
+      .filter((name): name is string => !!name);
+  }
+
+  private recordTargetSelections(roleName: RoleType, targets: Array<string | undefined>, isDoppelganger?: boolean) {
+    const selectors = this.getSelectorsForTurn(roleName, isDoppelganger);
+    if (selectors.length === 0) {
+      return;
+    }
+
+    for (const rawTarget of targets) {
+      if (!rawTarget) {
+        continue;
+      }
+      if (!this.selectedByTarget[rawTarget]) {
+        this.selectedByTarget[rawTarget] = new Set<string>();
+      }
+      for (const selectorName of selectors) {
+        this.selectedByTarget[rawTarget].add(selectorName);
+      }
+    }
+  }
+
+  private eliminateUser(user: User | undefined) {
+    if (!user) {
+      return;
+    }
+    while (user.lives > 0) {
+      removeLifeFromUser(user);
+    }
+  }
+
+  private resolveZorgConsequences() {
+    const zorgUser = getUsersWithRole(this.postNightUsers, RoleType.Zorg)[0];
+    if (!zorgUser || !this.zorgTarget) {
+      return;
+    }
+
+    const zorgTargetUser = findUser(this.postNightUsers, this.zorgTarget);
+    if (!zorgTargetUser) {
+      return;
+    }
+
+    if (zorgTargetUser.lives < 1) {
+      const selectors = this.selectedByTarget[this.zorgTarget]
+        ? [...this.selectedByTarget[this.zorgTarget]]
+        : [];
+      const victims: string[] = [];
+
+      for (const selectorName of selectors) {
+        if (selectorName === zorgUser.name) {
+          continue;
+        }
+        const selectorUser = findUser(this.postNightUsers, selectorName);
+        if (!selectorUser || selectorUser.lives < 1) {
+          continue;
+        }
+        this.eliminateUser(selectorUser);
+        victims.push(selectorName);
+      }
+
+      this.zorgTriggeredSelectors = victims;
+    }
+
+    if (zorgUser.lives < 1 && zorgTargetUser.lives > 0) {
+      this.eliminateUser(zorgTargetUser);
+      this.zorgLinkedDeath = zorgTargetUser.name;
     }
   }
 
@@ -275,6 +387,7 @@ export class AdminPage {
   ionViewWillEnter() {
     this.onClearScreen();
     this.allRolesHash = getAllRolesHash();
+    this.initRoleRuntimeState();
 
     this.mafiaNo = this.allRolesHash[RoleType.Mafia].players;
     this.villagerNo = this.allRolesHash[RoleType.Villager].players;
@@ -291,6 +404,7 @@ export class AdminPage {
   resetGameState() {
     this.gameState = GameState.Setup;
     this.uiState = createInitialAdminUiState();
+    this.initRoleRuntimeState();
 
     for (let user of this.users) {
       user.role = undefined;
@@ -424,24 +538,32 @@ export class AdminPage {
     this.postNightUsers = _.cloneDeep(this.users);
     this.roleIsAwake = false;
     this.mafiaAlive = getLivingMafiaNo(this.users);
+    this.selectedByTarget = {};
 
     this.resetNightSummaryState();
 
     for (let key in this.allRolesHash) {
       const role = this.allRolesHash[key];
-      role.hasWokenUp = false;
-      role.actionPerformed = false;
-      if (role.wakeUp && role.firstNightOnly && this.round > 1) {
-        role.wakeUp = false;
-      } else if (role.wakeUp && role.singleActionPerformed) {
-        role.wakeUp = false;
+      const runtime = this.roleState[role.name];
+      if (!runtime) {
+        continue;
+      }
+      runtime.isAwake = false;
+      runtime.hasWokenUp = false;
+      runtime.actionPerformed = false;
+      if (role.name === RoleType.Zorg) {
+        runtime.singleActionPerformed = false;
       }
     }
   }
 
   wakeRole(roleName) {
-    this.allRolesHash[roleName].isAwake = true;
-    this.allRolesHash[roleName].hasWokenUp = true;
+    const runtime = this.roleState[roleName];
+    if (!runtime) {
+      return;
+    }
+    runtime.isAwake = true;
+    runtime.hasWokenUp = true;
     this.roleIsAwake = true;
     this.broadcastService.sendMessage({
       type: BroadcastType.Role,
@@ -459,7 +581,11 @@ export class AdminPage {
   }
 
   sleepRole(roleName) {
-    this.allRolesHash[roleName].isAwake = false;
+    const runtime = this.roleState[roleName];
+    if (!runtime) {
+      return;
+    }
+    runtime.isAwake = false;
     this.roleIsAwake = false;
     this.broadcastService.sendMessage({
       type: BroadcastType.Text,
@@ -472,14 +598,18 @@ export class AdminPage {
     const firstUser = findUser(this.postNightUsers, firstUserName);
     const secondUserName = selected.user2;
     const role = this.allRolesHash[roleName];
-    role.actionPerformed = true;
+    const runtime = this.roleState[roleName];
+    if (runtime) {
+      runtime.actionPerformed = true;
+    }
 
-    if (role.singleAction) {
-      role.singleActionPerformed = true;
+    if (role.singleAction && runtime) {
+      runtime.singleActionPerformed = true;
     }
 
     switch (roleName) {
       case RoleType.Altruist:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         if (!isUserAlive(this.postNightUsers, firstUserName)) {
           addLife(this.postNightUsers, firstUserName);
           if (isDoppelganger) {
@@ -490,6 +620,7 @@ export class AdminPage {
         }
         break;
       case RoleType.GuardianAngel:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         addLife(this.postNightUsers, firstUserName);
         if (isDoppelganger) {
           this.doppelgangerAction = 'Gave extra life too' + firstUserName;
@@ -498,6 +629,7 @@ export class AdminPage {
         }
         break;
       case RoleType.Doctor:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         addLife(this.postNightUsers, firstUserName);
         if (isDoppelganger) {
           this.doppelgangerAction = 'Saved' + firstUserName;
@@ -507,14 +639,25 @@ export class AdminPage {
         break;
 
       case RoleType.Mafia:
-        removeLife(this.postNightUsers, firstUserName, roleName);
+        const mafiaTargets: string[] = [firstUserName];
+        if (this.isMafiaDoubleKillNight() && secondUserName) {
+          mafiaTargets.push(secondUserName);
+        }
+        this.recordTargetSelections(roleName, mafiaTargets, isDoppelganger);
+
+        const uniqueTargets = [...new Set(mafiaTargets.filter((target): target is string => !!target))];
+        for (const target of uniqueTargets) {
+          removeLife(this.postNightUsers, target, roleName);
+        }
+
         if (isDoppelganger) {
-          this.doppelgangerAction = 'Killed' + firstUserName;
+          this.doppelgangerAction = 'Killed ' + uniqueTargets.join(' and ');
         } else {
-          this.mafiaKilled = firstUserName;
+          this.mafiaKilled = uniqueTargets;
         }
         break;
       case RoleType.Sniper:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         removeLife(this.postNightUsers, firstUserName, roleName);
         if (isDoppelganger) {
           this.doppelgangerAction = 'Shot' + firstUserName;
@@ -524,6 +667,7 @@ export class AdminPage {
         break;
 
       case RoleType.Detective:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         const isMafia = detectUser(this.postNightUsers, firstUserName);
         this.broadcastService.sendMessage({
           type: BroadcastType.Text,
@@ -531,6 +675,7 @@ export class AdminPage {
         });
         break;
       case RoleType.Clairvoyant:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         if (!isUserAlive(this.postNightUsers, firstUserName)) {
           this.broadcastService.sendMessage({
             type: BroadcastType.Text,
@@ -539,6 +684,7 @@ export class AdminPage {
         }
         break;
       case RoleType.Investigator:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         this.broadcastService.sendMessage({
           type: BroadcastType.Text,
           text: 'They are a ' + firstUser.role.name,
@@ -546,6 +692,7 @@ export class AdminPage {
         break;
 
       case RoleType.Cupid:
+        this.recordTargetSelections(roleName, [firstUserName, secondUserName], isDoppelganger);
         if (isDoppelganger) {
           this.doppelgangerAction = 'Made fall in love' + firstUserName;
           this.cupidConnected.push(firstUserName);
@@ -556,6 +703,7 @@ export class AdminPage {
         break;
 
       case RoleType.Gambler:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         if (isDoppelganger) {
           this.doppelgangerAction = 'Bet on ' + firstUserName;
         } else {
@@ -564,18 +712,29 @@ export class AdminPage {
         break;
 
       case RoleType.Doppelganger:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         this.doppelgangerTurn(firstUserName, secondUserName)
         break;
 
       case RoleType.TaxiDriver:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         this.taxiDriverTurn(firstUserName)
         if (isDoppelganger) {
           this.doppelgangerAction = 'Stopped ' + firstUserName;
         } else {
           this.taxiDriverBlocks = firstUserName;
         }
-        if (role.singleAction) {
-          role.singleActionPerformed = false;
+        if (role.singleAction && runtime) {
+          runtime.singleActionPerformed = false;
+        }
+        break;
+
+      case RoleType.Zorg:
+        this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
+        if (isDoppelganger) {
+          this.doppelgangerAction = 'Linked with ' + firstUserName;
+        } else {
+          this.zorgTarget = firstUserName;
         }
         break;
     }
@@ -615,6 +774,10 @@ export class AdminPage {
 
       case RoleType.Cupid:
         this.cupidConnected = []
+        break;
+
+      case RoleType.Zorg:
+        this.zorgTarget = undefined;
         break;
     }
   }
@@ -676,6 +839,8 @@ export class AdminPage {
         removeLifeFromUser(doctorUser)
       }
     }
+
+    this.resolveZorgConsequences();
 
     this.users = _.cloneDeep(this.postNightUsers);
     this.gameState = GameState.Story;

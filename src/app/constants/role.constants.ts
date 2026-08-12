@@ -17,6 +17,7 @@ export enum RoleType {
     TaxiDriver = 'Taxi Driver',
     Thing = 'Thing',
     Villager = 'Villager',
+    Zorg = 'Zorg',
 }
 
 export enum RoleColor {
