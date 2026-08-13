@@ -69,12 +69,27 @@
   <div *ngIf="messageType === 'victory'">
     <ion-grid>
       <ion-row>
-        <ion-col size="10" offset="1" class="content">
+        <ion-col size="12" class="content victory-content">
           <ion-row>
             <ion-col class="role-title">
               {{winningRole}} Wins!!!
             </ion-col>
           </ion-row>
+
+          <ion-row *ngIf="revealUsers.length > 0" class="victory-reveal-title-row">
+            <ion-col class="victory-reveal-title">
+              Final Roles And Cards
+            </ion-col>
+          </ion-row>
+
+          <div *ngIf="revealUsers.length > 0" class="victory-reveal-grid">
+            <div *ngFor="let revealUser of revealUsers" class="victory-reveal-card">
+              <div class="victory-reveal-name">{{ revealUser.name }}</div>
+              <div class="victory-reveal-role">{{ revealUser.role }}</div>
+              <div class="victory-reveal-card-char" [ngStyle]="{ color: revealUser.cardColor }">{{ revealUser.cardChar }}</div>
+              <div class="victory-reveal-card-name">{{ revealUser.cardName }}</div>
+            </div>
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>

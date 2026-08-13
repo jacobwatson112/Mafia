@@ -7,3 +7,97 @@
     border-radius: 20px;
     padding: 10px 20px
 }
+
+.required-cards-panel {
+    border: 1px solid #d6d6d6;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fafafa;
+}
+
+.required-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px;
+}
+
+.required-card-group {
+    margin-top: 0;
+    padding: 10px;
+    border: 1px solid #ececec;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.required-card-group-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.required-card-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.required-card {
+    border: 1px solid #dcdcdc;
+    background: white;
+    border-radius: 10px;
+    padding: 4px 8px;
+    min-width: 54px;
+    text-align: center;
+}
+
+.required-card-char {
+    display: block;
+    font-size: 28px;
+    line-height: 1;
+}
+
+.required-card-name {
+    display: block;
+    font-size: 12px;
+}
+
+.required-cards-warning {
+    color: #c62828;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.save-users-message {
+    color: #1b5e20;
+    font-weight: 600;
+    margin: 6px 0;
+}
+
+.save-users-error {
+    color: #b71c1c;
+    font-weight: 600;
+    margin: 6px 0;
+}
+
+.dead-role-indicator {
+    color: #b71c1c;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 4px 0;
+}
+
+.dead-role-note {
+    color: #b71c1c;
+    font-weight: 600;
+}
+
+.in-game-cards-panel {
+    margin-top: 12px;
+    border-top: 1px solid #d9d9d9;
+    padding-top: 8px;
+}
+
+@media (max-width: 768px) {
+    .required-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+}

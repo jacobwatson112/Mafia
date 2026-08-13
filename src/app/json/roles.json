@@ -88,7 +88,7 @@
     {
       "name": "Doctor",
       "description": "Choose a player to save",
-      "text": "",
+      "text": "Note: If the sniper targets the same player, they will still die",
       "players": 1,
       "adminInfo": "",
       "wakeRule": {
@@ -130,7 +130,7 @@
     {
       "name": "Gambler",
       "description": "Choose a player you think will survive. You won't die until they do",
-      "text": "",
+      "text": "Note: Exception is the Sniper, but this does include the Trial",
       "players": 1,
       "adminInfo": "",
       "wakeRule": {
@@ -295,6 +295,27 @@
       ]
     },
     {
+      "name": "Observer",
+      "description": "Name a role aloud to reveal the player who has it. If the role is dead, choose another role.",
+      "text": "You may only do this ONCE per game",
+      "players": 1,
+      "adminInfo": "",
+      "wakeRule": {
+        "kind": "every-night"
+      },
+      "singleAction": true,
+      "saveAction": false,
+      "requiresTwoUsers": false,
+      "roleUserType": "all",
+      "cards": [
+        {
+          "name": "♦4",
+          "char": "🃄",
+          "color": "red"
+        }
+      ]
+    },
+    {
       "name": "Sniper",
       "description": "Kill ONE player at any point",
       "text": "Note: The doctor cannot save them",
@@ -416,7 +437,7 @@
     },
     {
       "name": "Zorg",
-      "description": "Feed Pizza",
+      "description": "Feed a player pizza. If they die, anyone who targeted them with an action also dies. If you die, the player you fed pizza to also dies.",
       "text": "🍕",
       "players": 1,
       "adminInfo": "",

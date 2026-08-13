@@ -1,9 +1,11 @@
 {
   "name": "mafia",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node ./tools/users-api.mjs & ng serve --proxy-config proxy.conf.json",
+    "start:web": "ng serve --proxy-config proxy.conf.json",
+    "start:api": "node ./tools/users-api.mjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

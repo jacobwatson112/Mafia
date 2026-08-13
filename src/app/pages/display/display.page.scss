@@ -31,3 +31,105 @@
 .card-name {
     font-size: 30px;
 }
+
+.victory-reveal-title-row {
+    margin-top: 6px;
+}
+
+.victory-reveal-title {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.victory-reveal-grid {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.victory-reveal-card {
+    border: 1px solid #d7d7d7;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 6px 6px 8px;
+}
+
+.victory-reveal-name {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.victory-reveal-role {
+    font-size: 14px;
+    margin-top: 1px;
+}
+
+.victory-reveal-card-char {
+    font-size: 56px;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.victory-reveal-card-name {
+    font-size: 16px;
+}
+
+.victory-content .role-title {
+    font-size: 48px;
+    margin: 0;
+    line-height: 1.05;
+}
+
+@media (max-width: 768px) {
+    .role-title {
+        font-size: 44px;
+    }
+
+    .victory-reveal-title {
+        font-size: 24px;
+    }
+
+    .victory-reveal-name {
+        font-size: 20px;
+    }
+
+    .victory-reveal-role {
+        font-size: 18px;
+    }
+
+    .victory-reveal-card-char {
+        font-size: 72px;
+    }
+
+    .victory-reveal-card-name {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .victory-reveal-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .victory-reveal-card {
+        padding: 5px 5px 6px;
+    }
+
+    .victory-reveal-name {
+        font-size: 16px;
+    }
+
+    .victory-reveal-role {
+        font-size: 13px;
+    }
+
+    .victory-reveal-card-char {
+        font-size: 48px;
+    }
+
+    .victory-reveal-card-name {
+        font-size: 14px;
+    }
+}

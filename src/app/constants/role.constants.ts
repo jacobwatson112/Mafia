@@ -12,6 +12,7 @@ export enum RoleType {
     MafiaBoss = 'Mafia Boss',
     Masons = 'Masons',
     Mayor = 'Mayor',
+    Observer = 'Observer',
     Sniper = 'Sniper',
     Tanner = 'Tanner',
     TaxiDriver = 'Taxi Driver',

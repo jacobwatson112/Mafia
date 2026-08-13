@@ -10,6 +10,14 @@ export enum BroadcastType {
   Victory = 'victory',
 }
 
+export interface VictoryRevealUser {
+  name: string;
+  role: RoleType;
+  cardName: string;
+  cardChar: string;
+  cardColor: string;
+}
+
 export type BroadcastMessage =
   | { type: BroadcastType.Clear }
   | { type: BroadcastType.Shuffle }
@@ -17,4 +25,4 @@ export type BroadcastMessage =
   | { type: BroadcastType.Role; role: RoleType }
   | { type: BroadcastType.Doppelganger; role: RoleType }
   | { type: BroadcastType.Text; text: string }
-  | { type: BroadcastType.Victory; role: RoleType };
+  | { type: BroadcastType.Victory; role: RoleType; revealUsers?: VictoryRevealUser[] };

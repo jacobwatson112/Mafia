@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BroadcastService } from '../../services/broadcast.service';
 import { BroadcastType } from '../../constants/broadcast.constants';
 import { RoleType } from '../../constants/role.constants';
@@ -26,7 +27,11 @@ type PlayerName = string;
 interface NightSummaryState {
   altruistResurrected?: PlayerName;
   doctorSaved?: PlayerName;
+  doctorSaveUsed?: boolean;
   mafiaKilled: PlayerName[];
+  mafiaFailedKills: PlayerName[];
+  nightDeaths: PlayerName[];
+  nightAffected: PlayerName[];
   zorgTarget?: PlayerName;
   zorgTriggeredSelectors: PlayerName[];
   zorgLinkedDeath?: PlayerName;
@@ -36,9 +41,13 @@ interface NightSummaryState {
   gamblerAlive: boolean;
   gamblerName?: PlayerName;
   guardianAngelSaved?: PlayerName;
+  guardianAngelLifeUsed?: boolean;
   doppelgangerRole?: RoleDefinition;
   doppelgangerAction?: string;
   taxiDriverBlocks?: PlayerName;
+  taxiDriverMafiaBlockOdds?: number;
+  taxiDriverMafiaBlockSuccess?: boolean;
+  taxiDriverMafiaBlockedTarget?: PlayerName;
 }
 
 interface TrialState {
@@ -51,8 +60,18 @@ interface AdminUiState {
   trial: TrialState;
 }
 
+interface RequiredCardGroup {
+  roleName: RoleType;
+  required: number;
+  cards: Card[];
+  missingCards: number;
+}
+
 const createInitialNightSummaryState = (): NightSummaryState => ({
   mafiaKilled: [],
+  mafiaFailedKills: [],
+  nightDeaths: [],
+  nightAffected: [],
   zorgTriggeredSelectors: [],
   cupidConnected: [],
   gamblerAlive: true,
@@ -74,10 +93,12 @@ const createInitialAdminUiState = (): AdminUiState => ({
 export class AdminPage {
   gameState: GameState = GameState.Setup;
   error: string;
+  saveUsersError?: string;
+  saveUsersMessage?: string;
 
   allRolesHash: RoleDefinitionMap;
-  users: User[];
-  postNightUsers: User[];
+  users: User[] = [];
+  postNightUsers: User[] = [];
 
   totalRoles: number;
   totalUsers: number;
@@ -86,6 +107,7 @@ export class AdminPage {
   villagerNo: number;
 
   newUserName: string;
+  storyAdminTarget?: PlayerName;
 
   round: number;
   enableMafiaDoubleKillFromNight3 = false;
@@ -100,6 +122,7 @@ export class AdminPage {
     {};
 
   mafiaAlive: number;
+  initialMafiaAlive: number;
 
   uiState: AdminUiState = createInitialAdminUiState();
 
@@ -117,11 +140,39 @@ export class AdminPage {
     this.uiState.night.doctorSaved = value;
   }
 
+  get doctorSaveUsed() {
+    return this.uiState.night.doctorSaveUsed;
+  }
+  set doctorSaveUsed(value: boolean | undefined) {
+    this.uiState.night.doctorSaveUsed = value;
+  }
+
   get mafiaKilled() {
     return this.uiState.night.mafiaKilled;
   }
   set mafiaKilled(value: string[]) {
     this.uiState.night.mafiaKilled = value;
+  }
+
+  get mafiaFailedKills() {
+    return this.uiState.night.mafiaFailedKills;
+  }
+  set mafiaFailedKills(value: string[]) {
+    this.uiState.night.mafiaFailedKills = value;
+  }
+
+  get nightDeaths() {
+    return this.uiState.night.nightDeaths;
+  }
+  set nightDeaths(value: string[]) {
+    this.uiState.night.nightDeaths = value;
+  }
+
+  get nightAffected() {
+    return this.uiState.night.nightAffected;
+  }
+  set nightAffected(value: string[]) {
+    this.uiState.night.nightAffected = value;
   }
 
   get sniperShot() {
@@ -187,6 +238,13 @@ export class AdminPage {
     this.uiState.night.guardianAngelSaved = value;
   }
 
+  get guardianAngelLifeUsed() {
+    return this.uiState.night.guardianAngelLifeUsed;
+  }
+  set guardianAngelLifeUsed(value: boolean | undefined) {
+    this.uiState.night.guardianAngelLifeUsed = value;
+  }
+
   get doppelgangerRole() {
     return this.uiState.night.doppelgangerRole;
   }
@@ -206,6 +264,27 @@ export class AdminPage {
   }
   set taxiDriverBlocks(value: string | undefined) {
     this.uiState.night.taxiDriverBlocks = value;
+  }
+
+  get taxiDriverMafiaBlockOdds() {
+    return this.uiState.night.taxiDriverMafiaBlockOdds;
+  }
+  set taxiDriverMafiaBlockOdds(value: number | undefined) {
+    this.uiState.night.taxiDriverMafiaBlockOdds = value;
+  }
+
+  get taxiDriverMafiaBlockSuccess() {
+    return this.uiState.night.taxiDriverMafiaBlockSuccess;
+  }
+  set taxiDriverMafiaBlockSuccess(value: boolean | undefined) {
+    this.uiState.night.taxiDriverMafiaBlockSuccess = value;
+  }
+
+  get taxiDriverMafiaBlockedTarget() {
+    return this.uiState.night.taxiDriverMafiaBlockedTarget;
+  }
+  set taxiDriverMafiaBlockedTarget(value: string | undefined) {
+    this.uiState.night.taxiDriverMafiaBlockedTarget = value;
   }
 
   get mayorUser() {
@@ -232,6 +311,7 @@ export class AdminPage {
 
   roleState: RoleRuntimeStateMap = {};
   private selectedByTarget: Record<string, Set<string>> = {};
+  private nightRoleEligibility: Partial<Record<RoleType, boolean>> = {};
 
   isMafiaDoubleKillNight(): boolean {
     return this.enableMafiaDoubleKillFromNight3 && this.round >= 3;
@@ -245,14 +325,41 @@ export class AdminPage {
   }
 
   roleCanWakeThisNight(roleName: RoleType): boolean {
+    return !!this.nightRoleEligibility[roleName];
+  }
+
+  private getRoleSelectors(roleName: RoleType, isDoppelganger = false): User[] {
+    if (!this.users?.length) {
+      return [];
+    }
+
+    if (isDoppelganger) {
+      return getUsersWithRole(this.users, RoleType.Doppelganger);
+    }
+
+    return getUsersWithRole(this.users, roleName);
+  }
+
+  isRoleDead(roleName: RoleType, isDoppelganger = false): boolean {
+    const selectors = this.getRoleSelectors(roleName, isDoppelganger);
+    if (!selectors.length) {
+      return true;
+    }
+    return selectors.every((user) => (user.lives ?? 0) < 1);
+  }
+
+  canRolePerformAction(roleName: RoleType, isDoppelganger = false): boolean {
+    return !this.isRoleDead(roleName, isDoppelganger);
+  }
+
+  private canRoleWakeByRule(roleName: RoleType): boolean {
     const role = this.allRolesHash[roleName];
     if (!role || role.players < 1) return false;
 
     const runtime = this.roleState[roleName];
-    if (roleName !== RoleType.Zorg && runtime?.singleActionPerformed) return false;
+    if (role.singleAction && runtime?.singleActionPerformed) return false;
 
     const nightRule = role.wakeRule;
-
     switch (nightRule.kind) {
       case 'never':
         return false;
@@ -317,6 +424,93 @@ export class AdminPage {
     }
   }
 
+  private isMafiaAligned(user: User | undefined): boolean {
+    if (!user?.role) {
+      return false;
+    }
+
+    const effectiveRoleName = user.role.name === RoleType.Doppelganger && user.doppelgangerRole
+      ? user.doppelgangerRole.name
+      : user.role.name;
+
+    return effectiveRoleName === RoleType.Mafia || effectiveRoleName === RoleType.MafiaBoss;
+  }
+
+  private getTaxiDriverMafiaBlockOdds(): number {
+    const mafiaDeaths = Math.max(0, this.initialMafiaAlive - getLivingMafiaNo(this.postNightUsers));
+
+    if (mafiaDeaths <= 0) {
+      return 90;
+    }
+    if (mafiaDeaths === 1) {
+      return 60;
+    }
+    if (mafiaDeaths === 2) {
+      return 30;
+    }
+    return 0;
+  }
+
+  private stopOneMafiaActionWithTaxiDriver(): string | undefined {
+    if (!this.mafiaKilled.length) {
+      return undefined;
+    }
+
+    const randomIndex = Math.floor(Math.random() * this.mafiaKilled.length);
+    const recoveredTarget = this.mafiaKilled[randomIndex];
+    addLife(this.postNightUsers, recoveredTarget);
+
+    const recoveredUser = findUser(this.postNightUsers, recoveredTarget);
+    if (recoveredUser?.lives > 0) {
+      this.mafiaKilled = this.mafiaKilled.filter((name) => name !== recoveredTarget);
+    }
+
+    return recoveredTarget;
+  }
+
+  private buildNightOutcomeSummary() {
+    const affected = new Set<PlayerName>();
+
+    for (const targetName of Object.keys(this.selectedByTarget)) {
+      const targetUser = findUser(this.postNightUsers, targetName);
+      if (targetUser?.name) {
+        affected.add(targetUser.name);
+      }
+    }
+
+    for (const userName of this.zorgTriggeredSelectors) {
+      if (userName) {
+        affected.add(userName);
+      }
+    }
+
+    if (this.zorgLinkedDeath) {
+      affected.add(this.zorgLinkedDeath);
+    }
+
+    const died: PlayerName[] = [];
+    for (const preNightUser of this.users) {
+      const postNightUser = findUser(this.postNightUsers, preNightUser.name);
+      if (!postNightUser) {
+        continue;
+      }
+
+      const preLives = preNightUser.lives ?? 0;
+      const postLives = postNightUser.lives ?? 0;
+
+      if (preLives !== postLives) {
+        affected.add(preNightUser.name);
+      }
+
+      if (preLives > 0 && postLives < 1) {
+        died.push(preNightUser.name);
+      }
+    }
+
+    this.nightDeaths = died;
+    this.nightAffected = [...affected].sort((a, b) => a.localeCompare(b));
+  }
+
   private resolveZorgConsequences() {
     const zorgUser = getUsersWithRole(this.postNightUsers, RoleType.Zorg)[0];
     if (!zorgUser || !this.zorgTarget) {
@@ -340,6 +534,9 @@ export class AdminPage {
         }
         const selectorUser = findUser(this.postNightUsers, selectorName);
         if (!selectorUser || selectorUser.lives < 1) {
+          continue;
+        }
+        if (this.isMafiaAligned(selectorUser)) {
           continue;
         }
         this.eliminateUser(selectorUser);
@@ -382,7 +579,46 @@ export class AdminPage {
     });
   }
 
-  constructor(private broadcastService: BroadcastService) { }
+  get observerRoleOptions() {
+    if (!this.allRolesArray) {
+      return [];
+    }
+    return this.allRolesArray.filter((role) => role.players > 0);
+  }
+
+  get requiredCardGroups(): RequiredCardGroup[] {
+    if (!this.allRolesArray) {
+      return [];
+    }
+
+    return this.allRolesArray
+      .filter((role) => role.players > 0)
+      .map((role) => {
+        const required = role.players;
+        const cards = role.cards.slice(0, required);
+        const missingCards = Math.max(0, required - role.cards.length);
+        return {
+          roleName: role.name,
+          required,
+          cards,
+          missingCards,
+        };
+      })
+      .sort((a, b) => a.roleName.localeCompare(b.roleName));
+  }
+
+  get requiredCardCount(): number {
+    return this.requiredCardGroups.reduce((total, group) => total + group.required, 0);
+  }
+
+  get missingRequiredCardsCount(): number {
+    return this.requiredCardGroups.reduce((total, group) => total + group.missingCards, 0);
+  }
+
+  constructor(
+    private broadcastService: BroadcastService,
+    private http: HttpClient,
+  ) { }
 
   ionViewWillEnter() {
     this.onClearScreen();
@@ -392,11 +628,25 @@ export class AdminPage {
     this.mafiaNo = this.allRolesHash[RoleType.Mafia].players;
     this.villagerNo = this.allRolesHash[RoleType.Villager].players;
 
-    this.users = getAllUsers() || [];
-    this.totalUsers = this.users.length;
     this.initSelectedUsers();
+    this.loadUsers();
+  }
 
-    this.resetGameState();
+  private loadUsers() {
+    this.http.get<{ users: User[] }>('/api/users').subscribe({
+      next: (users) => {
+        this.users = (users?.users ?? []).map((user) => ({ name: user.name }));
+        this.totalUsers = this.users.length;
+        this.saveUsersError = undefined;
+        this.resetGameState();
+      },
+      error: () => {
+        this.users = getAllUsers() || [];
+        this.totalUsers = this.users.length;
+        this.saveUsersError = 'Users API unavailable. Order changes still work, but Save to users.json is offline.';
+        this.resetGameState();
+      },
+    });
   }
 
 
@@ -405,6 +655,7 @@ export class AdminPage {
     this.gameState = GameState.Setup;
     this.uiState = createInitialAdminUiState();
     this.initRoleRuntimeState();
+    this.initialMafiaAlive = 0;
 
     for (let user of this.users) {
       user.role = undefined;
@@ -471,6 +722,8 @@ export class AdminPage {
     this.users.push(newUser);
     this.newUserName = undefined;
     this.totalUsers = this.users.length;
+    this.saveUsersError = undefined;
+    this.saveUsersMessage = undefined;
   }
 
   deleteUser(userName: string) {
@@ -479,6 +732,61 @@ export class AdminPage {
       this.users.splice(index, 1);
     }
     this.totalUsers = this.users.length;
+    this.saveUsersError = undefined;
+    this.saveUsersMessage = undefined;
+  }
+
+  onUserReorder(event: CustomEvent) {
+    this.users = (event as CustomEvent<{ complete: (list: User[]) => User[] }>).detail.complete(this.users);
+    this.saveUsersError = undefined;
+    this.saveUsersMessage = undefined;
+  }
+
+  saveUsersList() {
+    const normalizedUsers = this.users
+      .map((user) => ({ name: (user.name ?? '').trim() }))
+      .filter((user) => user.name.length > 0);
+
+    this.http.put<{ users: User[] }>('/api/users', { users: normalizedUsers }).subscribe({
+      next: (savedUsers) => {
+        this.users = (savedUsers?.users ?? []).map((user) => ({ name: user.name }));
+        this.totalUsers = this.users.length;
+        this.saveUsersError = undefined;
+        this.saveUsersMessage = 'Saved users.json with current names and order.';
+      },
+      error: () => {
+        this.saveUsersMessage = undefined;
+        this.saveUsersError = 'Could not save users.json. Make sure the local API is running.';
+      },
+    });
+  }
+
+  reviveStoryTarget() {
+    if (!this.storyAdminTarget) {
+      return;
+    }
+
+    const targetUser = findUser(this.users, this.storyAdminTarget);
+    if (!targetUser) {
+      return;
+    }
+
+    // Admin override: guarantee target is alive regardless of role mechanics.
+    targetUser.lives = Math.max(1, targetUser.lives ?? 0);
+  }
+
+  killStoryTarget() {
+    if (!this.storyAdminTarget) {
+      return;
+    }
+
+    const targetUser = findUser(this.users, this.storyAdminTarget);
+    if (!targetUser) {
+      return;
+    }
+
+    // Admin override: force target dead for correction workflows.
+    targetUser.lives = 0;
   }
 
   onStartClick() {
@@ -524,6 +832,7 @@ export class AdminPage {
   }
 
   onRolesSet() {
+    this.initialMafiaAlive = getLivingMafiaNo(this.users);
     this.round = 0;
     this.runNight();
   }
@@ -536,6 +845,8 @@ export class AdminPage {
       text: 'Everyone, Close your eyes',
     });
     this.postNightUsers = _.cloneDeep(this.users);
+    const doppelgangerUser = getUsersWithRole(this.postNightUsers, RoleType.Doppelganger)[0];
+    this.doppelgangerRole = doppelgangerUser?.doppelgangerRole;
     this.roleIsAwake = false;
     this.mafiaAlive = getLivingMafiaNo(this.users);
     this.selectedByTarget = {};
@@ -551,9 +862,14 @@ export class AdminPage {
       runtime.isAwake = false;
       runtime.hasWokenUp = false;
       runtime.actionPerformed = false;
-      if (role.name === RoleType.Zorg) {
+      if (!role.singleAction) {
         runtime.singleActionPerformed = false;
       }
+    }
+
+    this.nightRoleEligibility = {};
+    for (const role of Object.values(this.allRolesHash)) {
+      this.nightRoleEligibility[role.name] = this.canRoleWakeByRule(role.name);
     }
   }
 
@@ -570,8 +886,9 @@ export class AdminPage {
       role: roleName,
     });
     if (roleName === RoleType.Doppelganger) {
-      const doppelganger = getUsersWithRole(this.users, RoleType.Doppelganger)[0]
-      if (doppelganger.doppelgangerRole) {
+      const doppelganger = getUsersWithRole(this.postNightUsers, RoleType.Doppelganger)[0];
+      this.doppelgangerRole = doppelganger?.doppelgangerRole;
+      if (doppelganger?.doppelgangerRole) {
         this.broadcastService.sendMessage({
           type: BroadcastType.Doppelganger,
           role: doppelganger.doppelgangerRole.name,
@@ -594,6 +911,10 @@ export class AdminPage {
   }
 
   saveTurn(roleName, selected: { user1?: string; user2?: string }, isDoppelganger?: boolean) {
+    if (!this.canRolePerformAction(roleName, !!isDoppelganger)) {
+      return;
+    }
+
     const firstUserName = selected.user1;
     const firstUser = findUser(this.postNightUsers, firstUserName);
     const secondUserName = selected.user2;
@@ -603,7 +924,7 @@ export class AdminPage {
       runtime.actionPerformed = true;
     }
 
-    if (role.singleAction && runtime) {
+    if (role.singleAction && runtime && firstUserName) {
       runtime.singleActionPerformed = true;
     }
 
@@ -646,14 +967,23 @@ export class AdminPage {
         this.recordTargetSelections(roleName, mafiaTargets, isDoppelganger);
 
         const uniqueTargets = [...new Set(mafiaTargets.filter((target): target is string => !!target))];
+        const failedTargets: string[] = [];
         for (const target of uniqueTargets) {
+          const targetUser = findUser(this.postNightUsers, target);
+          const livesBefore = targetUser?.lives ?? 0;
           removeLife(this.postNightUsers, target, roleName);
+          const livesAfter = targetUser?.lives ?? 0;
+
+          if (livesAfter === livesBefore) {
+            failedTargets.push(target);
+          }
         }
 
         if (isDoppelganger) {
           this.doppelgangerAction = 'Killed ' + uniqueTargets.join(' and ');
         } else {
           this.mafiaKilled = uniqueTargets;
+          this.mafiaFailedKills = failedTargets;
         }
         break;
       case RoleType.Sniper:
@@ -716,6 +1046,40 @@ export class AdminPage {
         this.doppelgangerTurn(firstUserName, secondUserName)
         break;
 
+      case RoleType.Observer:
+        const observedRole = firstUserName as RoleType | undefined;
+        if (!observedRole) {
+          break;
+        }
+
+        const observedUser = getUsersWithRole(this.postNightUsers, observedRole)[0];
+        if (!observedUser) {
+          this.broadcastService.sendMessage({
+            type: BroadcastType.Text,
+            text: observedRole + ': dead',
+          });
+          if (role.singleAction && runtime) {
+            runtime.singleActionPerformed = false;
+          }
+          break;
+        }
+
+        if (observedUser.lives < 1) {
+          this.broadcastService.sendMessage({
+            type: BroadcastType.Text,
+            text: observedRole + ': dead',
+          });
+          if (role.singleAction && runtime) {
+            runtime.singleActionPerformed = false;
+          }
+        } else {
+          this.broadcastService.sendMessage({
+            type: BroadcastType.Text,
+            text: observedRole + ': ' + observedUser.name,
+          });
+        }
+        break;
+
       case RoleType.TaxiDriver:
         this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         this.taxiDriverTurn(firstUserName)
@@ -741,16 +1105,30 @@ export class AdminPage {
   }
 
   doppelgangerTurn(firstUserName: string, secondUserName: string) {
-    const user = getUsersWithRole(this.postNightUsers, RoleType.Doppelganger)[0]
-    if (!user.doppelgangerRole) {
-      user.doppelgangerRole = findUser(this.postNightUsers, firstUserName).role
-      this.doppelgangerRole = user.doppelgangerRole
+    const user = getUsersWithRole(this.postNightUsers, RoleType.Doppelganger)[0];
+    if (!user) {
+      return;
+    }
+
+    // Doppelganger copies exactly once, on the first night.
+    if (!user.doppelgangerRole && this.round === 1) {
+      const copiedUser = findUser(this.postNightUsers, firstUserName);
+      if (!copiedUser?.role) {
+        return;
+      }
+
+      user.doppelgangerRole = copiedUser.role;
+      this.doppelgangerRole = user.doppelgangerRole;
       this.broadcastService.sendMessage({
         type: BroadcastType.Doppelganger,
         role: user.doppelgangerRole.name,
       });
-    } else {
-      this.saveTurn(user.doppelgangerRole.name, {user1: firstUserName, user2: secondUserName}, true)
+      return;
+    }
+
+    if (user.doppelgangerRole && this.round > 1) {
+      this.doppelgangerRole = user.doppelgangerRole;
+      this.saveTurn(user.doppelgangerRole.name, { user1: firstUserName, user2: secondUserName }, true);
     }
   }
 
@@ -763,6 +1141,16 @@ export class AdminPage {
 
     switch (roleName) {
       case RoleType.Mafia:
+      case RoleType.MafiaBoss:
+        this.taxiDriverMafiaBlockOdds = this.getTaxiDriverMafiaBlockOdds();
+        this.taxiDriverMafiaBlockSuccess = Math.random() * 100 < this.taxiDriverMafiaBlockOdds;
+        this.taxiDriverMafiaBlockedTarget = undefined;
+
+        if (this.taxiDriverMafiaBlockSuccess) {
+          this.taxiDriverMafiaBlockedTarget = this.stopOneMafiaActionWithTaxiDriver();
+        }
+        break;
+
       case RoleType.Sniper:
         addLife(this.postNightUsers, firstUserName)
         break;
@@ -825,22 +1213,41 @@ export class AdminPage {
       const gamblerUser = findUser(this.postNightUsers, this.gamblerBet)
       if (gamblerUser.lives < 1) {
         const gambler = getUsersWithRole(this.postNightUsers, RoleType.Gambler) 
-        removeLifeFromUser(gambler[0])
+        removeLifeFromUser(gambler[0], RoleType.Gambler)
         this.gamblerAlive = gambler[0].lives > 1
         this.gamblerName = gambler[0].name
         this.gamblerBet = undefined
       }
     }
 
+    // Sniper cannot be blocked by doctor in the same night.
+    if (this.doctorSaved && this.sniperShot && this.doctorSaved === this.sniperShot) {
+      const sniperTarget = findUser(this.postNightUsers, this.doctorSaved);
+      if (sniperTarget?.lives > 0) {
+        removeLifeFromUser(sniperTarget, RoleType.Sniper);
+      }
+      this.doctorSaved = undefined;
+    }
+
     // If doctor saves someone then they gain extra life, this isnt what we want
     if (this.doctorSaved) {
       const doctorUser = findUser(this.postNightUsers, this.doctorSaved)
+      this.doctorSaveUsed = doctorUser.lives <= 1;
       if (doctorUser.lives > 1) {
         removeLifeFromUser(doctorUser)
       }
     }
 
+    if (this.guardianAngelSaved) {
+      const guardianPreUser = findUser(this.users, this.guardianAngelSaved);
+      const guardianPostUser = findUser(this.postNightUsers, this.guardianAngelSaved);
+      if (guardianPreUser && guardianPostUser) {
+        this.guardianAngelLifeUsed = (guardianPostUser.lives ?? 0) <= (guardianPreUser.lives ?? 0);
+      }
+    }
+
     this.resolveZorgConsequences();
+    this.buildNightOutcomeSummary();
 
     this.users = _.cloneDeep(this.postNightUsers);
     this.gameState = GameState.Story;
@@ -856,18 +1263,32 @@ export class AdminPage {
     this.gameState = GameState.Trial;
     this.resetTrialState();
     this.votedUser = undefined;
-    this.mayorUser = getUsersWithRole(this.postNightUsers, RoleType.Mayor)[0];
+    this.mayorUser = getUsersWithRole(this.users, RoleType.Mayor)[0];
+  }
+
+  private getVictoryRevealUsers() {
+    return this.users
+      .filter((user): user is User & { role: NonNullable<User['role']>; card: NonNullable<User['card']> } => !!user.role && !!user.card)
+      .map((user) => ({
+        name: user.name,
+        role: user.role.name,
+        cardName: user.card.name,
+        cardChar: user.card.char,
+        cardColor: user.card.color,
+      }));
   }
 
   checkWinCondition() {
     const mafiaCurrentlyAlive = getLivingMafiaNo(this.users);
     const villagerCurrentlyAlive = getLivingVillagerNo(this.users);
+    const revealUsers = this.getVictoryRevealUsers();
 
     if (mafiaCurrentlyAlive === 0) {
       // Villagers win
       this.broadcastService.sendMessage({
         type: BroadcastType.Victory,
         role: RoleType.Villager,
+        revealUsers,
       });
       return true;
     }
@@ -876,6 +1297,7 @@ export class AdminPage {
       this.broadcastService.sendMessage({
         type: BroadcastType.Victory,
         role: RoleType.Mafia,
+        revealUsers,
       });
       return true;
     }
@@ -887,22 +1309,27 @@ export class AdminPage {
 
     if (this.votedUser) {
       const votedOutUser = findUser(this.users, this.votedUser);
+      if (!votedOutUser) {
+        return;
+      }
+
       this.broadcastService.sendMessage({
         type: BroadcastType.Text,
         text: this.votedUser + ' has been fount GUILTY 😬😬😬',
       });
-
-      removeLifeFromUser(votedOutUser);
 
       // If tanner is voted out they win
       if (votedOutUser.role.name === RoleType.Tanner) {
         this.broadcastService.sendMessage({
           type: BroadcastType.Victory,
           role: RoleType.Tanner,
+          revealUsers: this.getVictoryRevealUsers(),
         });
         this.gameState = GameState.Setup;
         return;
       }
+
+      removeLifeFromUser(votedOutUser);
     }
 
     const winCond = this.checkWinCondition();

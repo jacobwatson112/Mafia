@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BroadcastService } from '../../services/broadcast.service';
-import { BroadcastType } from '../../constants/broadcast.constants';
+import { BroadcastType, VictoryRevealUser } from '../../constants/broadcast.constants';
 import { RoleType } from '../../constants/role.constants';
 import { getAllRoles, getRole } from '../../helper/roles.helper';
 import { RoleDefinition } from '../../models/role.models';
@@ -20,6 +20,7 @@ export class DisplayPage implements OnInit, OnDestroy {
   currentRoleIndex = 0;
   displayText?: string;
   winningRole?: RoleType;
+  revealUsers: VictoryRevealUser[] = [];
 
   private messageSub?: Subscription;
 
@@ -47,10 +48,12 @@ export class DisplayPage implements OnInit, OnDestroy {
           this.role = undefined;
           this.displayText = undefined;
           this.winningRole = undefined;
+          this.revealUsers = [];
           break;
 
         case BroadcastType.Text:
           this.displayText = msg.text;
+          this.revealUsers = [];
           break;
 
         case BroadcastType.Shuffle:
@@ -66,6 +69,7 @@ export class DisplayPage implements OnInit, OnDestroy {
 
         case BroadcastType.Victory:
           this.winningRole = msg.role;
+          this.revealUsers = msg.revealUsers ?? [];
           break;
       }
 

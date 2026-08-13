@@ -2,6 +2,16 @@
   <ion-row>
     <ion-col>
       <h1>System Controls</h1>
+      <ion-item>
+        <ion-label>Role Overview</ion-label>
+        <ion-select [(ngModel)]="selectedRoleOverview" interface="popover">
+          <ion-select-option *ngFor="let role of roleOverviewOptions" [value]="role">
+            {{ role }}
+          </ion-select-option>
+        </ion-select>
+        <ion-button (click)="onShowRoleOverviewClick()" color="secondary">Show Overview</ion-button>
+      </ion-item>
+      <p>Select one role and show its details on the display screen.</p>
       <ion-button (click)="onSendShuffleClick()">Display Roles</ion-button>
       <span style="float: right;">
         <ion-button (click)="onClearScreen()" color="danger">Clear Display</ion-button>

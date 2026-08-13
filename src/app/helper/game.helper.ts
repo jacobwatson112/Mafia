@@ -57,7 +57,11 @@ export function addLife(users: User[], userName: string) {
 }
 
 export function removeLifeFromUser(user: User, role?: RoleType) {
-    if (role === RoleType.Mafia && user.role.name === RoleType.Gambler) {
+  if (
+    user.role.name === RoleType.Gambler &&
+    role !== RoleType.Sniper &&
+    role !== RoleType.Gambler
+  ) {
     return;
   }
   user.lives -= 1;
