@@ -2,6 +2,9 @@
     <ion-col *ngFor="let user of users">
         <ion-row>
             {{ user.name }}
+            <span *ngIf="getGuardianAngelExtraLives(user) > 0" class="extra-life-marker">
+                ✚{{ getGuardianAngelExtraLives(user) }}
+            </span>
         </ion-row>
         <ion-row style="font-size: 100px" [ngStyle]="{ color: user.card?.color || 'inherit' }">
             {{ user.card?.char || '🂠' }}

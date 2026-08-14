@@ -13,4 +13,8 @@ export class UserPlayingCardComponent {
 
     constructor() {}
 
+    getGuardianAngelExtraLives(user: User): number {
+      return user?.guardianAngelExtraLives ?? 0;
+    }
+
 }

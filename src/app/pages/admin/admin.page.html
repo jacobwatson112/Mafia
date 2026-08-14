@@ -314,6 +314,9 @@
       <p *ngIf="zorgTarget">Zorg linked: {{zorgTarget}}</p>
       <p *ngIf="zorgTriggeredSelectors.length > 0">Zorg effect killed selectors: {{ zorgTriggeredSelectors.join(', ') }}</p>
       <p *ngIf="zorgLinkedDeath">Zorg death pulled down: {{zorgLinkedDeath}}</p>
+      <p *ngIf="guardianAngelSavedByExtraLife">
+        Guardian Angel extra life saved: {{ guardianAngelSavedByExtraLife }}
+      </p>
       <p *ngIf="nightDeaths.length > 0">Died Tonight: {{ nightDeaths.join(', ') }}</p>
       <p *ngIf="nightDeaths.length === 0">Died Tonight: Nobody</p>
       <p *ngIf="nightAffected.length > 0">Affected Tonight: {{ nightAffected.join(', ') }}</p>

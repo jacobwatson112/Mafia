@@ -42,6 +42,7 @@ interface NightSummaryState {
   gamblerName?: PlayerName;
   guardianAngelSaved?: PlayerName;
   guardianAngelLifeUsed?: boolean;
+  guardianAngelSavedByExtraLife?: PlayerName;
   doppelgangerRole?: RoleDefinition;
   doppelgangerAction?: string;
   taxiDriverBlocks?: PlayerName;
@@ -243,6 +244,13 @@ export class AdminPage {
   }
   set guardianAngelLifeUsed(value: boolean | undefined) {
     this.uiState.night.guardianAngelLifeUsed = value;
+  }
+
+  get guardianAngelSavedByExtraLife() {
+    return this.uiState.night.guardianAngelSavedByExtraLife;
+  }
+  set guardianAngelSavedByExtraLife(value: string | undefined) {
+    this.uiState.night.guardianAngelSavedByExtraLife = value;
   }
 
   get doppelgangerRole() {
@@ -489,6 +497,9 @@ export class AdminPage {
     }
 
     const died: PlayerName[] = [];
+    const extraLifeSavedUsers: string[] = [];
+    let anyGuardianExtraLifeUsed = false;
+
     for (const preNightUser of this.users) {
       const postNightUser = findUser(this.postNightUsers, preNightUser.name);
       if (!postNightUser) {
@@ -828,6 +839,7 @@ export class AdminPage {
       user.role = shuffledAssignments[i].role;
       user.card = shuffledAssignments[i].card;
       user.lives = 1;
+      user.guardianAngelExtraLives = 0;
     });
   }
 
@@ -943,6 +955,10 @@ export class AdminPage {
       case RoleType.GuardianAngel:
         this.recordTargetSelections(roleName, [firstUserName], isDoppelganger);
         addLife(this.postNightUsers, firstUserName);
+        const guardianTargetUser = findUser(this.postNightUsers, firstUserName);
+        if (guardianTargetUser) {
+          guardianTargetUser.guardianAngelExtraLives = (guardianTargetUser.guardianAngelExtraLives ?? 0) + 1;
+        }
         if (isDoppelganger) {
           this.doppelgangerAction = 'Gave extra life too' + firstUserName;
         } else {
@@ -1238,13 +1254,40 @@ export class AdminPage {
       }
     }
 
-    if (this.guardianAngelSaved) {
-      const guardianPreUser = findUser(this.users, this.guardianAngelSaved);
-      const guardianPostUser = findUser(this.postNightUsers, this.guardianAngelSaved);
-      if (guardianPreUser && guardianPostUser) {
-        this.guardianAngelLifeUsed = (guardianPostUser.lives ?? 0) <= (guardianPreUser.lives ?? 0);
+    const extraLifeSavedUsers: string[] = [];
+    let anyGuardianExtraLifeUsed = false;
+
+    for (const preNightUser of this.users) {
+      const postNightUser = findUser(this.postNightUsers, preNightUser.name);
+      if (!postNightUser) {
+        continue;
+      }
+
+      const preLives = preNightUser.lives ?? 0;
+      const postLives = postNightUser.lives ?? 0;
+      const preExtra = preNightUser.guardianAngelExtraLives ?? 0;
+      const granted = this.guardianAngelSaved === preNightUser.name ? 1 : 0;
+
+      const expectedLivesAfterGrant = preLives + granted;
+      const livesLost = Math.max(0, expectedLivesAfterGrant - postLives);
+      const consumedExtraLives = Math.min(preExtra + granted, livesLost);
+
+      postNightUser.guardianAngelExtraLives = Math.max(0, preExtra + granted - consumedExtraLives);
+
+      if (consumedExtraLives > 0) {
+        anyGuardianExtraLifeUsed = true;
+      }
+
+      // A player is "saved" by an extra life when one is consumed and they are still alive.
+      if (consumedExtraLives > 0 && postLives > 0) {
+        extraLifeSavedUsers.push(preNightUser.name);
       }
     }
+
+    this.guardianAngelLifeUsed = anyGuardianExtraLifeUsed;
+    this.guardianAngelSavedByExtraLife = extraLifeSavedUsers.length
+      ? extraLifeSavedUsers.join(', ')
+      : undefined;
 
     this.resolveZorgConsequences();
     this.buildNightOutcomeSummary();

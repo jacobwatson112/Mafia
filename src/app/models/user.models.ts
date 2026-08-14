@@ -6,4 +6,5 @@ export interface User {
   card?: Card;
   lives?: number;
   doppelgangerRole?: RoleDefinition;
+  guardianAngelExtraLives?: number;
 }
