@@ -2,6 +2,9 @@
     <ion-col *ngFor="let user of users">
         <ion-row>
             {{ user.name }}
+            <span *ngIf="isGamblerTarget(user)" class="gambler-target-marker">
+                🎲
+            </span>
             <span *ngIf="getGuardianAngelExtraLives(user) > 0" class="extra-life-marker">
                 ✚{{ getGuardianAngelExtraLives(user) }}
             </span>

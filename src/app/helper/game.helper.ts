@@ -59,7 +59,6 @@ export function addLife(users: User[], userName: string) {
 export function removeLifeFromUser(user: User, role?: RoleType) {
   if (
     user.role.name === RoleType.Gambler &&
-    role !== RoleType.Sniper &&
     role !== RoleType.Gambler
   ) {
     return;

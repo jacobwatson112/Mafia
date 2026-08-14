@@ -1373,6 +1373,14 @@ export class AdminPage {
       }
 
       removeLifeFromUser(votedOutUser);
+
+      // Gambler dies if the player they chose is voted out.
+      if (this.gamblerBet && this.votedUser === this.gamblerBet) {
+        const gamblerUser = getUsersWithRole(this.users, RoleType.Gambler)[0];
+        if (gamblerUser?.lives > 0) {
+          removeLifeFromUser(gamblerUser, RoleType.Gambler);
+        }
+      }
     }
 
     const winCond = this.checkWinCondition();

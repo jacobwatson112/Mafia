@@ -10,11 +10,16 @@ import { User } from '../../models/user.models';
 
 export class UserPlayingCardComponent {
     @Input() users: User[]
+  @Input() gamblerBet?: string;
 
     constructor() {}
 
     getGuardianAngelExtraLives(user: User): number {
       return user?.guardianAngelExtraLives ?? 0;
+    }
+
+    isGamblerTarget(user: User): boolean {
+      return !!this.gamblerBet && user?.name === this.gamblerBet;
     }
 
 }
