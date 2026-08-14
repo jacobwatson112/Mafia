@@ -1358,7 +1358,7 @@ export class AdminPage {
 
       this.broadcastService.sendMessage({
         type: BroadcastType.Text,
-        text: this.votedUser + ' has been fount GUILTY 😬😬😬',
+        text: this.votedUser + ' has been found GUILTY 😬😬😬',
       });
 
       // If tanner is voted out they win
